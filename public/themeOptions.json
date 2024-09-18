@@ -1,0 +1,102 @@
+{
+    "paletteOptions": [
+        {
+            "primaryColor": [
+                {
+                    "color": "#000000"
+                },
+                {
+                    "color": "#000000"
+                },
+                {
+                    "color": "#000000"
+                }
+            ],
+
+            "themeColor": [
+                {
+                    "type": "light",
+                    "color": "linear-gradient(#F0F1F5, #E6E7EA)",
+                    "fontColor": "#1D253B",
+                    "fontColorAlternative": "#999999",
+                    "shadowColor": "rgba(94, 94, 94, 0.3)",
+                    "fontShadowColor": "#c4c4c4",
+                    "borderColor": "rgba(0, 2, 34, 0.2)",
+                    "lineColor": "#E8E9EB",
+                    "containerColor": "#ffffff"
+                },
+                {
+                    "type": "dark",
+                    "color": "linear-gradient(#1e1e2f, #1e1e24)",
+                    "fontColor": "#FFFFFF",
+                    "fontColorAlternative": "#9A9A8E",
+                    "shadowColor": "rgba(24, 25, 38, 0.6)",
+                    "fontShadowColor": "#222222",
+                    "borderColor": "rgba(0, 0, 0, 0.2)",
+                    "lineColor": "#2B3553",
+                    "containerColor": "#27293D"
+                }
+            ],
+
+            "menuColor": [
+                {
+                    "color": "linear-gradient(to top, #3f4d67, #3a566e, #375f72, #376874, #3d7074)",
+                    "fontColor": "#e8e9eb"
+                },
+                {
+                    "color": "linear-gradient(to top, #008f7a, #009d84, #00ac8e, #00ba98, #00c9a2)",
+                    "fontColor": "#e8e9eb"
+                },
+                {
+                    "color": "linear-gradient(to top, #354b46, #374d48, #394f4a, #3c524d, #3e544f)",
+                    "fontColor": "#e8e9eb"
+                },
+                {
+                    "color": "linear-gradient(to top, #1e8af8, #1280f9, #1376f9, #206bf7, #305ff5)",
+                    "fontColor": "#e8e9eb"
+                },
+                {
+                    "color": "linear-gradient(to top, hsla(282, 36%, 25%, 1) 0%, hsla(310, 22%, 37%, 1) 100%)",
+                    "fontColor": "#e8e9eb"
+                },
+                {
+                    "color": "linear-gradient(0deg, hsla(232, 14%, 21%, 1) 0%, hsla(228, 13%, 22%, 1) 100%)",
+                    "fontColor": "#e8e9eb"
+                }
+            ],
+
+            "menuStyle": [
+                {
+                    "menuWidth": "19vw",
+                    "menuOptionsWidthContainer": "100%",
+                    "menuOptionsWidth": "30%",
+                    "menuHeight": "100vh",
+                    "menuDisplay": "block",
+                    "externalHeight": "100vh",
+                    "externalBorder": "none"
+                },
+                {
+                    "menuWidth": "55px",
+                    "menuOptionsWidthContainer": "80%",
+                    "menuOptionsWidth": "100%",
+                    "menuHeight": "100vh",
+                    "menuDisplay": "none",
+                    "externalHeight": "100vh",
+                    "externalBorder": "none"
+                },
+                {
+                    "menuWidth": "5vw",
+                    "menuOptionsWidthContainer": "80%",
+                    "menuOptionsWidth": "100%",
+                    "menuHeight": "100vh",
+                    "menuDisplay": "none",
+                    "externalHeight": "98vh",
+                    "externalBorder": "10px"
+                }
+
+            ]
+
+
+        }
+    ]
+}

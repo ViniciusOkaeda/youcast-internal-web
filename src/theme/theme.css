@@ -1,0 +1,121 @@
+.configOpenOptions{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+.configOpenOptions button {
+    width: 100%;
+    height: 100%;
+    background-image: var(--menu-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.containerStyle {
+    width: 20%;
+    height: 100%;
+    min-height: 500px;
+    min-width: 250px;
+    max-width: 250px;
+    position: absolute;
+    z-index: 2;
+    box-shadow: -4px 1px 5px var(--shadow-color);
+    background-color: var(--container-color);
+    right: 0%;
+    top: 0%;
+    overflow: auto;
+}
+
+.containerStyle.active {
+    display: block;
+    
+}
+
+.containerStyle.inactive {
+    display: none;
+}
+
+.headerStyled {
+    width: 80%;
+    margin: 20px auto auto auto;
+}
+
+.headerStyled h2 {
+    width: 100%;
+    font-weight: 300;
+    color: var(--font-color);
+    border-bottom: 1px solid var(--line-color);
+}
+
+.contentStyed {
+    width: 80%;
+    margin: 15px auto 40px auto;
+    padding: 10px;
+    display: flex;
+}
+
+
+
+
+.themeContent {
+    width: 30%;
+    height: 100%;
+    margin: auto;
+}
+.themeContent p{
+    text-align: center;
+    font-weight: bold;
+    color: var(--font-color-alternative);
+}
+.themeContainer {
+    width: 75%;
+    height: 40px;
+    border-radius: 100%;
+    cursor: pointer;
+    background-image: var(--theme-color);
+    box-shadow: 2px 2px 2px rgb(126, 126, 126);
+    border: 1px solid rgb(110, 110, 110);
+    margin: 10px auto;
+}
+
+
+
+.menuContent {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+
+}
+
+.menuContainer {
+    width: 50%;
+    height: 30px;
+    border-radius: 100%;
+    cursor: pointer;
+    background-image: var(--menu-color);
+    box-shadow: 2px 2px 2px rgb(126, 126, 126);
+    border: 1px solid rgb(255, 255, 255);
+    margin: 10px auto;
+}
+
+.typeContent {
+    width: 100%;
+    height: 100%;
+    margin: auto 2px;
+}
+.typeContainer {
+    width: 100%;
+    height: 30px;
+    cursor: pointer;
+    border-right: 2px solid var(--line-color);
+    margin: 10px auto;
+}
+
+.typeContainer p {
+    width: 100%;
+    height: 100%;
+    color: var(--font-color);
+}
