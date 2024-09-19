@@ -1,40 +1,21 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import './table.css';
 import { useNavigate } from 'react-router-dom';
 import api from "../../services/api";
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
+import { ExcelExportAtivosTotalMedia } from "../excel/excelExport";
 
-const LineupTable = ({ data }) => {
+const LineupTable = ({ whitelistProducts, data }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [dealers, setDealers] = useState([]);
+    const [expandedRowId, setExpandedRowId] = useState(null);
 
-    async function getDealerData() {
-        setLoading(true);
-
-        const data = [{ service_name: "Lineup General Management", type_service_id: 4, aux_sms: null, aux_mw: null, view_right: 1}];
-
-        try {
-            const request = await api.post('api/dealer/getDealersData', { data });
-            if (request.data.status === 1) {
-                setDealers(request.data.data[0]?.dealersInfo?.rows || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    useEffect(() => {
-        getDealerData();
-    }, []);
+    //console.log("minha whitelist", whitelistProducts)
+    //console.log("minha data", data)
 
     // Resetar a página atual para 1 quando o número de itens por página mudar
     useEffect(() => {
@@ -42,7 +23,7 @@ const LineupTable = ({ data }) => {
     }, [itemsPerPage]);
 
     // Filtrar os dados com base no termo de pesquisa
-    const filteredData = dealers.filter((item) =>
+    const filteredData = data.filter((item) =>
         item.dealers_company_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
     );
 
@@ -83,6 +64,108 @@ const LineupTable = ({ data }) => {
                     {number}
                 </button>
             )
+        ));
+    };
+
+    const changeDealerIdToName = (dealer_id) => {
+
+        switch(dealer_id){
+            case 1:
+                return "";
+            case 5:
+                return "Vendor";
+            case 15:
+                return "Brand Yplay";
+            case 23:
+                return "Brand WSP";
+            case 25:
+                return "Brand Yplay - Cariap";
+            case 41:
+                return "Brand Yplay - IDCORP";
+            case 134:
+                return "Brand Olla";
+            case 148:
+                return "Brand Yplay - Alloha";
+            case 153:
+                return "Brand Yplay CO";
+            case 166:
+                return "Brand ClickIP";
+            case 177:
+                return "Brand Yplay CO - Fibercomm";
+            case 178:
+                return "Brand SouPlay";
+            case 181:
+                return "Brand Nortetel";
+            case 184:
+                return "Brand Yplay - Alloha";
+            case 186:
+                return "Brand Yplay - Alloha";
+            case 190:
+                return "Brand Yplay - Alloha";
+            case 219:
+                return "Brand Yplay - InterfaceNet";
+            case 263:
+                return "Brand Newbrasil";
+            case 278:
+                return "Brand Uni";
+            case 299:
+                return "Brand Yplay - Kase";
+            default:
+                return "N/A";
+        }
+
+    }
+
+    const handleViewMore = useCallback((id) => {
+        setExpandedRowId(expandedRowId === id ? null : id);
+    }, [expandedRowId]);
+
+    const getDetailsForRow = (dealerId) => {
+        //console.log("aqui o white", whitelistProducts)
+
+        return whitelistProducts.filter(dados => dealerId === dados.products_dealers_dealers_id
+        ).map(item => {
+            return {
+                bouquets_name: item.bouquets_name,
+                products_bouquets_id: item.products_bouquets_id,
+                products_dealers_dealers_id: item.products_dealers_dealers_id,
+                products_dealers_products_id: item.products_dealers_products_id,
+                products_mw_id: item.products_mw_id,
+                products_name: item.products_name
+            };
+        });
+    };
+
+    const renderDetailsTable = (dealerId) => {
+        const details = getDetailsForRow(dealerId);
+
+        return details.map((detail, index) => (
+            <tr key={index} className="trExpanded">
+                <td colSpan="6">
+                    <div className="subTableContainer">
+                        <table className="subTable">
+                            <thead>
+                                <tr>
+                                    <th>Login</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/*
+                                
+                                {detail.customer.map((customer, idx) => (
+                                    <tr key={idx}>
+                                        <td>{customer.login}</td>
+                                        <td>{customer.haveTotalMedia === 1 ? "Pacote Ativo" : ""}</td>
+                                    </tr>
+                                ))}
+                                
+                                */}
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
         ));
     };
 
@@ -134,15 +217,25 @@ const LineupTable = ({ data }) => {
                     </thead>
                     <tbody>
                         {currentItems.map((empresa, idx) => (
-                            <tr key={idx} className="trBody">
-                                <td>{empresa.dealers_company_name}</td>
-                                <td>{empresa.parent_dealers_id === 5 ? "Vendor" : empresa.parent_dealers_id === 15 ? "Brand Yplay" : ""}</td>
-                                <td>{empresa.dealers_cnpj}</td>
-                                <td>{empresa.dealers_city + "/" + empresa.dealers_state}</td>
-                                <td>0</td>
-                                <td>{empresa.dealers_active === 1 ? "Ativo" : "Inativo"}</td>
-                                <td><button className="btnTableTd">Ver Mais <ArrowCircleRightRoundedIcon /></button></td>
-                            </tr>
+                            <React.Fragment key={idx}>
+                                <tr  className="trBody">
+                                    <td>{empresa.dealers_company_name}</td>
+                                    <td>{changeDealerIdToName(empresa.parent_dealers_id)}</td>
+                                    <td>{empresa.dealers_cnpj}</td>
+                                    <td>{empresa.dealers_city + "/" + empresa.dealers_state}</td>
+                                    <td>
+                                        {whitelistProducts.filter(whitelist => whitelist.products_dealers_dealers_id === empresa.dealers_id).map(e => e).length}
+                                    </td>
+                                    <td>{empresa.dealers_active === 1 ? "Ativo" : "Inativo"}</td>
+                                    <td>
+                                        <button className="btnTableTd" onClick={() => handleViewMore(empresa.dealers_id)}>
+                                            {expandedRowId === empresa.dealers_id ? 'Ver Menos' : 'Ver Mais'} <ArrowCircleRightRoundedIcon />
+                                        </button>                                
+                                    </td>
+                                </tr>
+                                {expandedRowId === empresa.dealers_id && renderDetailsTable(empresa.dealers_id)}
+                            </React.Fragment>
+
                         ))}
                     </tbody>
                 </table>
@@ -220,7 +313,7 @@ const ReportsTable = ({ data }) => {
     const handleViewMore = (id) => {
         const params = currentItems.filter(e => e.type_service_id === id)
         navigate(`/report/${id}`, { state: { additionalParam: params } });
-      };
+    };
 
     return (
         <div className="tableContainer">
@@ -267,19 +360,19 @@ const ReportsTable = ({ data }) => {
                     </thead>
                     <tbody>
                         {
-                        currentItems.map((e, idx) => {
+                            currentItems.map((e, idx) => {
 
-                            return(
-                            <tr key={idx} className="trBody">
-                                <td>{e.type_service_id}</td>
-                                <td>{e.service_name}</td>
-                                <td>Visualização de Relatório </td>
-                                <td><button className="btnTableTd"
-                                onClick={() => handleViewMore(e.type_service_id)}
-                                >Ver Relatório <ArrowCircleRightRoundedIcon /></button></td>
-                            </tr>
-                            )
-                        })
+                                return (
+                                    <tr key={idx} className="trBody">
+                                        <td>{e.type_service_id}</td>
+                                        <td>{e.service_name}</td>
+                                        <td>Visualização de Relatório </td>
+                                        <td><button className="btnTableTd"
+                                            onClick={() => handleViewMore(e.type_service_id)}
+                                        >Ver Relatório <ArrowCircleRightRoundedIcon /></button></td>
+                                    </tr>
+                                )
+                            })
                         }
 
                     </tbody>
@@ -302,28 +395,50 @@ const ReportsTableTotalMedia = ({ products, data }) => {
     const [error, setError] = useState('');
     const [expandedRowId, setExpandedRowId] = useState(null);
 
+
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
     const navigate = useNavigate();
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    };
 
     useEffect(() => {
         setCurrentPage(1);
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Remove o ouvinte de eventos quando o componente é desmontado
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+
+        };
     }, [itemsPerPage]);
+
+    const toggleDropdown = () => {
+        setIsOpen((prev) => !prev);
+    };
 
 
     //O report totalmedia é uma particularidade onde foi necessário criar 2 filteredData. Em casos normais será somente 1
-    const filteredData = useMemo(() => 
-        data.filter(item => products.map(e => e.dealer).includes(item.dealers_name)) || [], 
-    [data, products]);
+    const filteredData = useMemo(() =>
+        data.filter(item => products.map(e => e.dealer).includes(item.dealers_name)) || [],
+        [data, products]);
 
-    const filteredData2 = useMemo(() => 
-        filteredData.filter(item => 
+    const filteredData2 = useMemo(() =>
+        filteredData.filter(item =>
             item.dealers_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
-        ), 
-    [filteredData, searchTerm]);
+        ),
+        [filteredData, searchTerm]);
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = useMemo(() => filteredData2.slice(indexOfFirstItem, indexOfLastItem), 
-    [filteredData2, indexOfFirstItem, indexOfLastItem]);
+    const currentItems = useMemo(() => filteredData2.slice(indexOfFirstItem, indexOfLastItem),
+        [filteredData2, indexOfFirstItem, indexOfLastItem]);
 
     const totalPages = useMemo(() => Math.ceil(filteredData2.length / itemsPerPage), [filteredData2, itemsPerPage]);
 
@@ -404,10 +519,28 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                 <div className="tableTitle">
                     <h2>Total Media</h2>
                 </div>
-                <div className="tableExport">
-                    <button className="exportButton">
+                <div className="tableExport" ref={dropdownRef}>
+                    <button className="exportButton" onClick={toggleDropdown}>
                         <MoreVertRoundedIcon />
                     </button>
+                    {isOpen && (
+
+                        <div className="dropdown-table">
+                            <ul>
+                                <li>
+                                    <ExcelExportAtivosTotalMedia
+                                        data={data.filter(item => products.map(e => e.dealer).includes(item.dealers_name))}
+                                        month={0}
+                                        assinant={0}
+                                        fatured={0}
+                                        usersDealerInfo={products}
+
+                                    />
+                                </li>
+                            </ul>
+
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -452,7 +585,7 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                                     <td>{e.dealers_cnpj}</td>
                                     <td>{e.dealers_city + "/" + e.dealers_state}</td>
                                     <td>
-                                        {getDetailsForRow(e.dealers_name).reduce((acc, curr) => 
+                                        {getDetailsForRow(e.dealers_name).reduce((acc, curr) =>
                                             acc + curr.customer.length, 0)}
                                     </td>
                                     <td>
@@ -476,7 +609,5 @@ const ReportsTableTotalMedia = ({ products, data }) => {
 };
 
 export default ReportsTableTotalMedia;
-
-
 
 export { LineupTable, ReportsTable, ReportsTableTotalMedia };

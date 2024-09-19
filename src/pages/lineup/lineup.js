@@ -4,6 +4,7 @@ import { LineupTable } from "../../components/tables/table"
 import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
 import "./lineup.css"
+import api from "../../services/api";
 import { Header } from "../../components/header/header";
 import { ValidateToken, GetUserData, Logout } from "../../services/calls";
 
@@ -18,6 +19,9 @@ function Lineup() {
     const [error, setError] = useState('');
     const [userData, setUserData] = useState(null);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
+    const [dealers, setDealers] = useState([]);
+    const [products, setProducts] = useState([]);
+
 
 
     useEffect(() => {
@@ -27,6 +31,8 @@ function Lineup() {
                 if (result) {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
+                    getDealerData(result.availableServices.filter(e => e.service_name.includes("Lineup")))
+                    getWhitelistProductsData(result.availableServices.filter(e => e.service_name.includes("Lineup")))
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -53,6 +59,45 @@ function Lineup() {
         checkData();
     }, [navigate]);
 
+    async function getDealerData(permissionInfo) {
+        setLoading(true);
+
+        const data = permissionInfo
+
+        try {
+            const request = await api.post('api/dealer/getDealersData', { data });
+            if (request.data.status === 1) {
+                setDealers(request.data?.data[0].dealersInfo.rows || []);
+            } else {
+                setError('Failed to load data');
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function getWhitelistProductsData(permissionInfo) {
+        setLoading(true);
+
+        const data = permissionInfo
+
+        try {
+            const request = await api.post('api/product/getWhitelistProductsData', { data });
+            if (request.data.status === 1) {
+                //console.log("o req product", request.data?.productsInfo.rows)
+                setProducts(request.data?.productsInfo.rows || []);
+            } else {
+                setError('Failed to load data');
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return(
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -65,7 +110,7 @@ function Lineup() {
                     <Header data={userData} />
                     <div className="maxWidth">
                         <Card />
-                        <LineupTable data={"opa"} />
+                        <LineupTable whitelistProducts={products} data={dealers} />
 
                     </div>
                 </div>

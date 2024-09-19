@@ -119,6 +119,7 @@ code {
   margin: auto;
   background-image: var(--theme-color);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .maxWidth {
