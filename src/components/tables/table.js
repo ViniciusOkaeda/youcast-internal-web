@@ -6,7 +6,7 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
 import { ExcelExportAtivosTotalMedia } from "../excel/excelExport";
 
-const LineupTable = ({ whitelistProducts, data }) => {
+const LineupTable = ({ whitelistProducts, data, channelsData, vodsData }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -138,35 +138,37 @@ const LineupTable = ({ whitelistProducts, data }) => {
 
     const renderDetailsTable = (dealerId) => {
         const details = getDetailsForRow(dealerId);
-
-        return details.map((detail, index) => (
-            <tr key={index} className="trExpanded">
+        console.log("os details", details)
+            return(
+            <tr className="trExpanded">
                 <td colSpan="6">
                     <div className="subTableContainer">
                         <table className="subTable">
                             <thead>
                                 <tr>
-                                    <th>Login</th>
-                                    <th>Status</th>
+                                    <th>Produto</th>
+                                    <th>ID Produto</th>
+                                    <th>ID Bouquet</th>
+                                    <th>ID MW</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {/*
-                                
-                                {detail.customer.map((customer, idx) => (
+                                {details.map((products, idx) => (
                                     <tr key={idx}>
-                                        <td>{customer.login}</td>
-                                        <td>{customer.haveTotalMedia === 1 ? "Pacote Ativo" : ""}</td>
+                                        <td>{products.products_name}</td>
+                                        <td>{products.products_dealers_products_id}</td>
+                                        <td>{products.products_bouquets_id}</td>
+                                        <td>{products.products_mw_id}</td>
+                                        <td><button className="btnTableTd">Ver Conteúdos</button></td>
                                     </tr>
                                 ))}
-                                
-                                */}
                             </tbody>
                         </table>
                     </div>
                 </td>
             </tr>
-        ));
+            )
     };
 
     return (

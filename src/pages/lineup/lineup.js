@@ -21,6 +21,8 @@ function Lineup() {
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [dealers, setDealers] = useState([]);
     const [products, setProducts] = useState([]);
+    const [channels, setChannels] = useState([]);
+    const [vods, setVods] = useState([]);
 
 
 
@@ -29,10 +31,13 @@ function Lineup() {
             try {
                 const result = await GetUserData();
                 if (result) {
+                    let dataAvailable = result.availableServices.filter(e => e.service_name.includes("Lineup"))
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-                    getDealerData(result.availableServices.filter(e => e.service_name.includes("Lineup")))
-                    getWhitelistProductsData(result.availableServices.filter(e => e.service_name.includes("Lineup")))
+                    getDealerData(dataAvailable)
+                    getWhitelistProductsData(dataAvailable)
+                    getChannelsData(dataAvailable)
+                    getVodsData(dataAvailable)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -98,6 +103,44 @@ function Lineup() {
         }
     }
 
+    async function getChannelsData(permissionInfo) {
+        setLoading(true);
+
+        const data = permissionInfo
+
+        try {
+            const request = await api.post('api/channel/getChannelsData', { data });
+            if (request.data.status === 1) {
+                setChannels(request.data?.channelsData.rows || []);
+            } else {
+                setError('Failed to load data');
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function getVodsData(permissionInfo) {
+        setLoading(true);
+
+        const data = permissionInfo
+
+        try {
+            const request = await api.post('api/vod/getVodsData', { data });
+            if (request.data.status === 1) {
+                setVods(request.data?.vodsData.rows || []);
+            } else {
+                setError('Failed to load data');
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return(
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -110,7 +153,7 @@ function Lineup() {
                     <Header data={userData} />
                     <div className="maxWidth">
                         <Card />
-                        <LineupTable whitelistProducts={products} data={dealers} />
+                        <LineupTable whitelistProducts={products} data={dealers} channelsData={channels} vodsData={vods} />
 
                     </div>
                 </div>
