@@ -6,13 +6,14 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
 import { ExcelExportAtivosTotalMedia } from "../excel/excelExport";
 
-const LineupTable = ({ whitelistProducts, data, channelsData, vodsData }) => {
+const LineupTable = ({ whitelistProducts, data }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [expandedRowId, setExpandedRowId] = useState(null);
+    const navigate = useNavigate();
 
     //console.log("minha whitelist", whitelistProducts)
     //console.log("minha data", data)
@@ -21,6 +22,10 @@ const LineupTable = ({ whitelistProducts, data, channelsData, vodsData }) => {
     useEffect(() => {
         setCurrentPage(1);
     }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
 
     // Filtrar os dados com base no termo de pesquisa
     const filteredData = data.filter((item) =>
@@ -136,38 +141,45 @@ const LineupTable = ({ whitelistProducts, data, channelsData, vodsData }) => {
         });
     };
 
+    const handleViewMore2 = (id, name) => {
+        navigate(`/lineup/${id}`, { state: { additionalParam: name} });
+    };
+
     const renderDetailsTable = (dealerId) => {
         const details = getDetailsForRow(dealerId);
         console.log("os details", details)
             return(
-            <tr className="trExpanded">
-                <td colSpan="6">
-                    <div className="subTableContainer">
-                        <table className="subTable">
-                            <thead>
-                                <tr>
-                                    <th>Produto</th>
-                                    <th>ID Produto</th>
-                                    <th>ID Bouquet</th>
-                                    <th>ID MW</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {details.map((products, idx) => (
-                                    <tr key={idx}>
-                                        <td>{products.products_name}</td>
-                                        <td>{products.products_dealers_products_id}</td>
-                                        <td>{products.products_bouquets_id}</td>
-                                        <td>{products.products_mw_id}</td>
-                                        <td><button className="btnTableTd">Ver Conteúdos</button></td>
+            <React.Fragment>
+                <tr className="trExpanded">
+                    <td colSpan="6">
+                        <div className="subTableContainer">
+                            <table className="subTable">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>ID Produto</th>
+                                        <th>ID Bouquet</th>
+                                        <th>ID MW</th>
+                                        <th>Ações</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </td>
-            </tr>
+                                </thead>
+                                <tbody>
+                                    {details.map((products, idx) => (
+                                        <tr key={idx}>
+                                            <td>{products.products_name}</td>
+                                            <td>{products.products_dealers_products_id}</td>
+                                            <td>{products.products_bouquets_id}</td>
+                                            <td>{products.products_mw_id}</td>
+                                            <td><button className="btnTableTd" onClick={() => handleViewMore2(products.products_mw_id, products.products_name)}>Ver Conteúdos</button></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+
+            </React.Fragment>
             )
     };
 
@@ -251,6 +263,270 @@ const LineupTable = ({ whitelistProducts, data, channelsData, vodsData }) => {
     );
 }
 
+const ChannelsTable = ({ channelsData }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
+
+    // Filtrar os dados com base no termo de pesquisa
+    const filteredData = channelsData.filter((item) =>
+        item.channels_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    );
+
+    // Calcular os dados a serem exibidos na página atual
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Criar botões de paginação
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+
+    // Função para renderizar a lista de páginas com ...
+    const renderPageNumbers = () => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) => (
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        ));
+    };
+
+
+
+
+    return (
+        <div className="tableContainer">
+            <div className="tableHeader">
+                <div className="tableTitle">
+                    <h2>Canais Ativos</h2>
+                </div>
+                <div className="tableExport">
+                    <button className="exportButton">
+                        <MoreVertRoundedIcon />
+                    </button>
+                </div>
+            </div>
+
+            <div className="searchContainer">
+                <input
+                    type="text"
+                    placeholder="Pesquisar canal..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+
+            <div className="tableWrapper">
+                <table>
+                    <thead>
+                        <tr className="trHeader">
+                            <th>ID</th>
+                            <th>Canal</th>
+                            <th>ID Pacote</th>
+                            <th>Pacote</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.map((channels, idx) => (
+                            <React.Fragment key={idx}>
+                                <tr  className="trBody">
+                                    <td>{channels.channels_id}</td>
+                                    <td>{channels.channels_name}</td>
+                                    <td>{channels.packages_id}</td>
+                                    <td>{channels.packages_name}</td>
+                                </tr>
+                            </React.Fragment>
+
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div className="pagination">
+                {renderPageNumbers()}
+            </div>
+        </div>
+    );
+}
+const VodsTable = ({ vodsData }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    console.log("meus vod", vodsData)
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
+
+    // Filtrar os dados com base no termo de pesquisa
+    const filteredData = vodsData.filter((item) =>
+        item.vods_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    );
+
+    // Calcular os dados a serem exibidos na página atual
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Criar botões de paginação
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+
+    // Função para renderizar a lista de páginas com ...
+    const renderPageNumbers = () => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) => (
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        ));
+    };
+
+
+
+
+    return (
+        <div className="tableContainer">
+            <div className="tableHeader">
+                <div className="tableTitle">
+                    <h2>VODs Ativos</h2>
+                </div>
+                <div className="tableExport">
+                    <button className="exportButton">
+                        <MoreVertRoundedIcon />
+                    </button>
+                </div>
+            </div>
+
+            <div className="searchContainer">
+                <input
+                    type="text"
+                    placeholder="Pesquisar VOD..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+
+            <div className="tableWrapper">
+                <table>
+                    <thead>
+                        <tr className="trHeader">
+                            <th>ID</th>
+                            <th>VOD</th>
+                            <th>ID Pacote</th>
+                            <th>Grupo</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.map((vods, idx) => (
+                            <React.Fragment key={idx}>
+                                <tr  className="trBody">
+                                    <td>{vods.vod_id}</td>
+                                    <td>{vods.vods_name}</td>
+                                    <td>{vods.packages_vods_id}</td>
+                                    <td>{vods.group_vod_name}</td>
+                                </tr>
+                            </React.Fragment>
+
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div className="pagination">
+                {renderPageNumbers()}
+            </div>
+        </div>
+    );
+}
+
 const ReportsTable = ({ data }) => {
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -266,6 +542,10 @@ const ReportsTable = ({ data }) => {
     useEffect(() => {
         setCurrentPage(1);
     }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
 
     // Filtrar os dados com base no termo de pesquisa
     const filteredData = data.filter((item) =>
@@ -420,6 +700,10 @@ const ReportsTableTotalMedia = ({ products, data }) => {
 
         };
     }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
 
     const toggleDropdown = () => {
         setIsOpen((prev) => !prev);
@@ -610,6 +894,5 @@ const ReportsTableTotalMedia = ({ products, data }) => {
     );
 };
 
-export default ReportsTableTotalMedia;
 
-export { LineupTable, ReportsTable, ReportsTableTotalMedia };
+export { LineupTable, ReportsTable, ReportsTableTotalMedia, ChannelsTable, VodsTable };

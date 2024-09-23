@@ -11,6 +11,7 @@ import Smtp from "./pages/smtp/smtp";
 import Service from "./pages/service/service";
 import Report from "./pages/report/report";
 import DetailedReport from "./pages/report/detailedReport";
+import DetailedLineup from "./pages/lineup/detailedLineup";
 
 import withAuth from "./utils/privateRoute";
 
@@ -18,6 +19,7 @@ const ProtectedDashboard = withAuth(Dashboard);
 const ProtectedUser = withAuth(User);
 const ProtectedPermission = withAuth(Permission);
 const ProtectedLineup = withAuth(Lineup);
+const ProtectedDetailedLineup = withAuth(DetailedLineup);
 const ProtectedSmtp = withAuth(Smtp);
 const ProtectedService = withAuth(Service);
 const ProtectedReport = withAuth(Report);
@@ -38,6 +40,7 @@ function AllRoutes() {
         <Route path="/user" element={<ProtectedUser />} />
         <Route path="/permission" element={<ProtectedPermission />} />
         <Route path="/lineup" element={<ProtectedLineup />} />
+        <Route path="/lineup/:id" element={<ProtectedDetailedLineup />} />
         <Route path="/smtp" element={<ProtectedSmtp />} />
         <Route path="/service" element={<ProtectedService />} />
         <Route path="/report" element={<ProtectedReport />} />
