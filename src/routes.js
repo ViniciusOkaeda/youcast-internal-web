@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import Login from "./pages/login/login";
 import Dashboard from "./pages/dashboard/dashboard";
 import User from "./pages/user.js/user";
+import UserRegister from "./pages/user.js/register/register"
 import Permission from "./pages/permission/permission";
 import Lineup from "./pages/lineup/lineup";
 import Smtp from "./pages/smtp/smtp";
@@ -17,6 +18,7 @@ import withAuth from "./utils/privateRoute";
 
 const ProtectedDashboard = withAuth(Dashboard);
 const ProtectedUser = withAuth(User);
+const ProtectedUserRegister = withAuth(UserRegister);
 const ProtectedPermission = withAuth(Permission);
 const ProtectedLineup = withAuth(Lineup);
 const ProtectedDetailedLineup = withAuth(DetailedLineup);
@@ -38,6 +40,7 @@ function AllRoutes() {
 
         <Route path="/dashboard" element={<ProtectedDashboard />} />
         <Route path="/user" element={<ProtectedUser />} />
+        <Route path="/user/register" element={<ProtectedUserRegister />} />
         <Route path="/permission" element={<ProtectedPermission />} />
         <Route path="/lineup" element={<ProtectedLineup />} />
         <Route path="/lineup/:id" element={<ProtectedDetailedLineup />} />

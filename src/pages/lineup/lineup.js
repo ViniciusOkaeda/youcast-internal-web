@@ -36,8 +36,6 @@ function Lineup() {
                     setUserDataAvailable(result.availableServices || []);
                     getDealerData(dataAvailable)
                     getWhitelistProductsData(dataAvailable)
-                    getChannelsData(dataAvailable)
-                    getVodsData(dataAvailable)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -103,43 +101,7 @@ function Lineup() {
         }
     }
 
-    async function getChannelsData(permissionInfo) {
-        setLoading(true);
 
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/channel/getChannelsData', { data });
-            if (request.data.status === 1) {
-                setChannels(request.data?.channelsData.rows || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function getVodsData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/vod/getVodsData', { data });
-            if (request.data.status === 1) {
-                setVods(request.data?.vodsData.rows || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
 
     return(
         <div className="container flex">

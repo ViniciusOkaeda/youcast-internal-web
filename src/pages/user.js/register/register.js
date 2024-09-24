@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Card } from "../../components/cards/card";
+import { Card } from "../../../components/cards/card";
 import { useNavigate } from "react-router-dom";
-import { Menu } from "../../components/menu/menu";
-import "./user.css";
-import { Header } from "../../components/header/header";
-import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
-import { ValidateToken, GetUserData, Logout } from "../../services/calls";
-import { RunCircle } from "@mui/icons-material";
+import { Menu } from "../../../components/menu/menu";
+import "./register.css";
+import { Header } from "../../../components/header/header";
+import { ValidateToken, GetUserData, Logout } from "../../../services/calls";
 
-function User() {
+function RegisterUser() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true); // Inicialmente, está carregando
     const [error, setError] = useState('');
@@ -64,14 +62,18 @@ function User() {
                     <div className="maxWidth">
                         {userPermissions.register_right === 1 ?
                         <div className="registerButtonContainer">
-                            <button className="registerButton" onClick={(() => navigate('/user/register'))}>
-                                <PersonAddRoundedIcon />
-                                <p>Novo Usuário</p>
-                            </button>
+
                         </div>
                         
                         : ""}
-                        <Card />
+
+                    <div className="registerContainer">
+                    <h3>Preencha todos os dados</h3>
+
+                    
+                    </div>    
+
+
 
                     </div>
                 </div>
@@ -80,4 +82,4 @@ function User() {
     );
 }
 
-export default User;
+export default RegisterUser;

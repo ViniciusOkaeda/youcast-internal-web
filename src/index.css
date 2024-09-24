@@ -133,6 +133,23 @@ code {
   margin-top: 20px;
 }
 
+.registerButtonContainer{
+  width: 100%;
+  height: auto;
+  margin: 15px 0;
+}
+.registerButton{
+  display: flex;
+  justify-content: space-between;
+  background-color: #444444;
+  width: 170px;
+  height: 40px;
+}
+
+.registerButton .MuiSvgIcon-root {
+height: 20px;
+}
+
 
 
 

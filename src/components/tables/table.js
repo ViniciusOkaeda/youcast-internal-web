@@ -15,8 +15,12 @@ const LineupTable = ({ whitelistProducts, data }) => {
     const [expandedRowId, setExpandedRowId] = useState(null);
     const navigate = useNavigate();
 
+    let teste = data.filter(e => e.dealers_name === "NEW BRASIL")[0]
+
+
+
     //console.log("minha whitelist", whitelistProducts)
-    //console.log("minha data", data)
+    console.log("minha data", data.filter(e => e.dealers_name === "NEW BRASIL")[0])
 
     // Resetar a página atual para 1 quando o número de itens por página mudar
     useEffect(() => {
@@ -233,7 +237,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
                         {currentItems.map((empresa, idx) => (
                             <React.Fragment key={idx}>
                                 <tr  className="trBody">
-                                    <td>{empresa.dealers_company_name}</td>
+                                    <td>{empresa.dealers_company_name === null ? empresa.dealers_name : empresa.dealers_company_name}</td>
                                     <td>{changeDealerIdToName(empresa.parent_dealers_id)}</td>
                                     <td>{empresa.dealers_cnpj}</td>
                                     <td>{empresa.dealers_city + "/" + empresa.dealers_state}</td>
