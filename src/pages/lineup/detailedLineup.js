@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Card } from "../../components/cards/card"
 import { ChannelsTable, LineupTable, VodsTable } from "../../components/tables/table"
@@ -21,7 +21,7 @@ function DetailedLineup() {
 
     const [channels, setChannels] = useState([]);
     const [vods, setVods] = useState([]);
-        
+
     const { id } = useParams(); // Pega o ID da URL
     const location = useLocation();
     const { additionalParam } = location.state || {}; // Captura parâmetros adicionais se existirem
@@ -103,23 +103,31 @@ function DetailedLineup() {
         }
     }
 
-    return(
+    return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
-            {loading ? (
-                <div>Loading...</div> // Exibindo um indicador de carregamento
-            ) : error ? (
-                <div>Error: {error}</div> // Exibindo mensagem de erro, se houver
-            ) : (
-                <div className="content">
-                    <Header data={userData} />
-                    <div className="maxWidth">
-                    <h3>Pacote: {additionalParam}</h3>
-                    <ChannelsTable channelsData={channels} />
-                    <VodsTable vodsData={vods} />
-                    </div>
+            <div className="content">
+                <Header data={userData} />
+                <div className="maxWidth">
+                    {loading ? (
+                        <div className="initialContainer"><h3>Carregando...</h3></div> // Exibindo um indicador de carregamento
+                    ) : error ? (
+                        <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
+                    ) : (
+                        <>
+                            <div className="initialContainer">
+                                <h3>Pacote: {additionalParam}</h3>
+
+                            </div>
+                            <ChannelsTable channelsData={channels} />
+                            <VodsTable vodsData={vods} />
+
+                        </>
+
+                    )}
+
                 </div>
-            )}
+            </div>
         </div>
     )
 }

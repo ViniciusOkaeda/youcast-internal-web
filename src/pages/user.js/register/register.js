@@ -22,7 +22,7 @@ function RegisterUser() {
                 if (result) {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0] )
+                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0])
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -52,32 +52,40 @@ function RegisterUser() {
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
-            {loading ? (
-                <div>Loading...</div> // Exibindo um indicador de carregamento
-            ) : error ? (
-                <div>Error: {error}</div> // Exibindo mensagem de erro, se houver
-            ) : (
-                <div className="content">
-                    <Header data={userData} />
-                    <div className="maxWidth">
-                        {userPermissions.register_right === 1 ?
-                        <div className="registerButtonContainer">
+            <div className="content">
+                <Header data={userData} />
+                <div className="maxWidth">
+                    {loading ? (
+                        <div className="initialContainer"><h3>Carregando...</h3></div> // Exibindo um indicador de carregamento
+                    ) : error ? (
+                        <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
+                    ) : (
+                        <>
+                            {userPermissions.register_right === 1 ?
+                                <div className="registerButtonContainer">
 
-                        </div>
-                        
-                        : ""}
+                                </div>
 
-                    <div className="registerContainer">
-                    <h3>Preencha todos os dados</h3>
-
-                    
-                    </div>    
+                                : ""}
 
 
+                            <div className="initialContainer">
+                                <h3>Preencha todos os dados</h3>
+                            </div>
 
-                    </div>
+                            <div className="registerContainer">
+
+
+                            </div>
+
+                        </>
+
+                    )}
+
+
+
                 </div>
-            )}
+            </div>
         </div>
     );
 }

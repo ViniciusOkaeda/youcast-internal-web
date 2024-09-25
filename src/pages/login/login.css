@@ -1,20 +1,8 @@
-:root {
-    --style-color-ink-lowest-contrast: rgba(4, 215, 42, 0.18);
-    --style-color-ink-low-contrast: rgba(14, 32, 190, 0.3);
-    --style-color-ink-medium-contrast: rgba(65, 65, 65, 0.304);
-  
-    /* detalhes input ao clicar no mesmo*/
-    --style-color-interaction: #503e0c;
-    --style-color-interaction-minus-two: rgba(208, 193, 27, 0.303);
-    --style-color-danger: #b50706;
-  
-    /* cor de fundo input */
-    --style-color-bg-low-contrast: #F1F4FF;
-  
-    /* cor de fundo linha de baixo do input ao passar o mouse */
-    --style-color-ink-high-contrast: #504a0c;
-    --style-color-bg-high-contrast: #ba0d0d;
-  }
+
+
+  .formTextInitial h2 {
+    color: #1D253B;
+    }
 
 .containerLogin {
     width: 100%;
@@ -77,105 +65,6 @@ padding: 40px 0 20px 0;
 
 
 
-div.style-input-group {
-    margin-bottom: 1.5rem;
-    position: relative;
-    width: 100%;
-  }
-  
-  /* Input*/
-  .style-input-filled > input {
-    border: none;
-    width: 100%;
-    color: #444;
-    height: 3.5rem;
-    border-radius: 5px;
-    font-size: 1.0625rem;
-    padding-left: 0.875rem;
-    line-height: 147.6%;
-    padding-top: 1.1rem;
-    padding-bottom: 0.5rem;
-  }
-  
-  .style-input-filled > input:focus {
-    outline: none;
-  }
-  
-  .style-input-filled > .style-input-label {
-    position: absolute;
-    top: 0.9375rem;
-    left: 0.875rem;
-    line-height: 147.6%;
-    color: var(--style-color-ink-medium-contrast);
-    transition: top 0.2s;
-  }
-  
-  .style-input-filled > svg {
-    position: absolute;
-    top: 0.9375rem;
-    right: 0.875rem;
-    fill: var(--style-color-ink-medium-contrast);
-  }
-  
-  .style-input-filled > .style-input-helper {
-    font-size: 0.9375rem;
-    color: var(--style-color-ink-medium-contrast);
-    letter-spacing: 0.0275rem;
-    margin: 0.125rem 0.875rem;
-  }
-  
-  .style-input-filled > input:hover {
-    background: var(--style-color-interaction-minus-two);
-    border-color: var(--style-color-ink-high-contrast);
-  }
-  
-  .style-input-filled > input:focus + .style-input-label,
-  .style-input-filled > input:valid + .style-input-label {
-    top: 0;
-    font-size: 0.9375rem;
-    margin-bottom: 32px;
-  }
-  
-  .style-input-filled:not(.style-input-danger)
-    > input:focus
-    + .style-input-label {
-    color: var(--style-color-interaction);
-  }
-  
-  .style-input-filled:not(.style-input-danger) > input:focus {
-    border-color: var(--style-color-interaction);
-  }
-  
-  .style-input-filled:not(.style-input-danger) > input:focus ~ svg {
-    fill: var(--style-color-ink-high-contrast);
-  }
-  
-  /** DANGER **/
-  
-  .style-input-filled.style-input-danger > .style-input-label,
-  .style-input-filled.style-input-danger > .style-input-helper {
-    color: var(--style-color-danger);
-  }
-  
-  .style-input-danger > svg {
-    fill: var(--style-color-danger);
-  }
-  
-  .style-input-danger > input {
-    border-color: var(--style-color-danger);
-  }
-  
-  .style-input-filled > input {
-    background: var(--style-color-bg-low-contrast);
-  }
-
-  .error{
-    color: red;
-  }
-
-  .lineStyled {
-    margin: 30px auto;
-}
 
   .copyright {
     width: 100%;

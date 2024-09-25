@@ -109,31 +109,33 @@ function DetailedReport() {
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
-            {loading ? (
-                <div>Loading...</div> // Exibindo um indicador de carregamento
-            ) : error ? (
-                <div>Error: {error}</div> // Exibindo mensagem de erro, se houver
-            ) : (
-                <div className="content">
-                    <Header data={userData} />
-                    <div className="maxWidth">
-                        {userFilteredDataAvailable.length > 0 
-                        ? 
-                        <div>
-                            <Card />
+            <div className="content">
+                <Header data={userData} />
+                <div className="maxWidth">
+                    {loading ? (
+                        <div className="initialContainer"><h3>Carregando...</h3></div> // Exibindo um indicador de carregamento
+                    ) : error ? (
+                        <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
+                    ) : (
+                        <>
+                            {userFilteredDataAvailable.length > 0
+                                ?
+                                <div>
+                                    <Card />
 
-                            <ReportsTableTotalMedia products={products} data={dealers} />
+                                    <ReportsTableTotalMedia products={products} data={dealers} />
 
-                        </div>
-                        :
-                        <div className='detailNotFound'>
-                            <p>Relatório não encontrado. Para verificar quais relatórios você tem acesso, <a href="/report">clique aqui.</a></p>
-                        </div> 
-                        }
+                                </div>
+                                :
+                                <div className='detailNotFound'>
+                                    <p>Relatório não encontrado. Para verificar quais relatórios você tem acesso, <a href="/report">clique aqui.</a></p>
+                                </div>
+                            }
+                        </>
+                    )}
 
-                    </div>
                 </div>
-            )}
+            </div>
         </div>
     )
 }

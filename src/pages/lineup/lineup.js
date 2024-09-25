@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Card } from "../../components/cards/card"
 import { LineupTable } from "../../components/tables/table"
 import { useNavigate } from "react-router-dom";
@@ -103,23 +103,26 @@ function Lineup() {
 
 
 
-    return(
+    return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
-            {loading ? (
-                <div>Loading...</div> // Exibindo um indicador de carregamento
-            ) : error ? (
-                <div>Error: {error}</div> // Exibindo mensagem de erro, se houver
-            ) : (
-                <div className="content">
-                    <Header data={userData} />
-                    <div className="maxWidth">
-                        <Card />
-                        <LineupTable whitelistProducts={products} data={dealers} channelsData={channels} vodsData={vods} />
+            <div className="content">
+                <Header data={userData} />
+                <div className="maxWidth">
+                    {loading ? (
+                        <div className="initialContainer"><h3>Carregando...</h3></div> // Exibindo um indicador de carregamento
+                    ) : error ? (
+                        <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
+                    ) : (
+                        <>
+                            <Card />
+                            <LineupTable whitelistProducts={products} data={dealers} channelsData={channels} vodsData={vods} />
 
-                    </div>
+                        </>
+                    )}
+
                 </div>
-            )}
+            </div>
         </div>
     )
 }

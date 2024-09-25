@@ -50,20 +50,23 @@ function Report() {
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
-            {loading ? (
-                <div>Loading...</div> // Exibindo um indicador de carregamento
-            ) : error ? (
-                <div>Error: {error}</div> // Exibindo mensagem de erro, se houver
-            ) : (
-                <div className="content">
-                    <Header data={userData} />
-                    <div className="maxWidth">
-                        <Card />
-                        <ReportsTable data={userDataAvailable.filter(e => e.service_name.includes("Report"))}/>
+            <div className="content">
+                <Header data={userData} />
+                <div className="maxWidth">
+                    {loading ? (
+                        <div className="initialContainer"><h3>Carregando...</h3></div> // Exibindo um indicador de carregamento
+                    ) : error ? (
+                        <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
+                    ) : (
+                        <>
+                            <Card />
+                            <ReportsTable data={userDataAvailable.filter(e => e.service_name.includes("Report"))} />
 
-                    </div>
+                        </>
+                    )}
+
                 </div>
-            )}
+            </div>
         </div>
     );
 }

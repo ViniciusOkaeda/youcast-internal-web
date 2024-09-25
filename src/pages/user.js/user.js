@@ -24,7 +24,7 @@ function User() {
                 if (result) {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0] )
+                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0])
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -54,28 +54,32 @@ function User() {
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
-            {loading ? (
-                <div>Loading...</div> // Exibindo um indicador de carregamento
-            ) : error ? (
-                <div>Error: {error}</div> // Exibindo mensagem de erro, se houver
-            ) : (
-                <div className="content">
-                    <Header data={userData} />
-                    <div className="maxWidth">
-                        {userPermissions.register_right === 1 ?
-                        <div className="registerButtonContainer">
-                            <button className="registerButton" onClick={(() => navigate('/user/register'))}>
-                                <PersonAddRoundedIcon />
-                                <p>Novo Usuário</p>
-                            </button>
-                        </div>
-                        
-                        : ""}
-                        <Card />
+            <div className="content">
+                <Header data={userData} />
+                <div className="maxWidth">
+                    {loading ? (
+                        <div className="initialContainer"><h3>Carregando...</h3></div> // Exibindo um indicador de carregamento
+                    ) : error ? (
+                        <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
+                    ) : (
+                        <>
+                            {userPermissions.register_right === 1 ?
+                                <div className="registerButtonContainer">
+                                    <button className="registerButton" onClick={(() => navigate('/user/register'))}>
+                                        <PersonAddRoundedIcon />
+                                        <p>Novo Usuário</p>
+                                    </button>
+                                </div>
 
-                    </div>
+                                : ""}
+                            <Card />
+
+                        </>
+
+                    )}
+
                 </div>
-            )}
+            </div>
         </div>
     );
 }
