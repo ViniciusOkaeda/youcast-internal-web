@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from "../../services/api";
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import { ExcelExportAtivosTotalMedia } from "../excel/excelExport";
 
 const LineupTable = ({ whitelistProducts, data }) => {
@@ -266,7 +267,6 @@ const LineupTable = ({ whitelistProducts, data }) => {
         </div>
     );
 }
-
 const ChannelsTable = ({ channelsData }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -515,6 +515,278 @@ const VodsTable = ({ vodsData }) => {
                                     <td>{vods.vods_name}</td>
                                     <td>{vods.packages_vods_id}</td>
                                     <td>{vods.group_vod_name}</td>
+                                </tr>
+                            </React.Fragment>
+
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div className="pagination">
+                {renderPageNumbers()}
+            </div>
+        </div>
+    );
+}
+
+const UsersTable = ({ usersData }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    console.log("usersData", usersData)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
+
+    // Filtrar os dados com base no termo de pesquisa
+    const filteredData = usersData.filter((item) =>
+        item.username?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    );
+
+    // Calcular os dados a serem exibidos na página atual
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Criar botões de paginação
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+
+    // Função para renderizar a lista de páginas com ...
+    const renderPageNumbers = () => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) => (
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        ));
+    };
+
+
+
+
+    return (
+        <div className="tableContainer">
+            <div className="tableHeader">
+                <div className="tableTitle">
+                    <h2>Users Ativos</h2>
+                </div>
+                <div className="tableExport">
+                    <button className="exportButton">
+                        <MoreVertRoundedIcon />
+                    </button>
+                </div>
+            </div>
+
+            <div className="searchContainer">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+
+            <div className="tableWrapper">
+                <table>
+                    <thead>
+                        <tr className="trHeader">
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Lastname</th>
+                            <th>Email</th>
+                            <th>Permissão</th>
+                            <th>Último Acesso</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.map((users, idx) => (
+                            <React.Fragment key={idx}>
+                                <tr  className="trBody">
+                                    <td>{users.user_id}</td>
+                                    <td>{users.username}</td>
+                                    <td>{users.name}</td>
+                                    <td>{users.lastname}</td>
+                                    <td>{users.email}</td>
+                                    <td>{users.type_user}</td>
+                                    <td>{users.last_acess}</td>
+                                    <td>{users.active === 1 ? "Ativo" : "Inativo"}</td>
+                                    <td><button className="btnTableTd"><EditRoundedIcon /></button></td>
+                                </tr>
+                            </React.Fragment>
+
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div className="pagination">
+                {renderPageNumbers()}
+            </div>
+        </div>
+    );
+}
+
+const PermissionsTable = ({ permissionsData }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    console.log("usersData", permissionsData)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
+
+    // Filtrar os dados com base no termo de pesquisa
+    const filteredData = permissionsData.filter((item) =>
+        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    );
+
+    // Calcular os dados a serem exibidos na página atual
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Criar botões de paginação
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+
+    // Função para renderizar a lista de páginas com ...
+    const renderPageNumbers = () => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) => (
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        ));
+    };
+
+
+
+
+    return (
+        <div className="tableContainer">
+            <div className="tableHeader">
+                <div className="tableTitle">
+                    <h2>Permissões Ativas</h2>
+                </div>
+                <div className="tableExport">
+                    <button className="exportButton">
+                        <MoreVertRoundedIcon />
+                    </button>
+                </div>
+            </div>
+
+            <div className="searchContainer">
+                <input
+                    type="text"
+                    placeholder="Pesquisar permissão..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+
+            <div className="tableWrapper">
+                <table>
+                    <thead>
+                        <tr className="trHeader">
+                            <th>ID</th>
+                            <th>Permissão</th>
+                            <th>Ações</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.map((permission, idx) => (
+                            <React.Fragment key={idx}>
+                                <tr  className="trBody">
+                                    <td>{permission.type_user_id}</td>
+                                    <td>{permission.name}</td>
+                                    <td><button className="btnTableTd"><EditRoundedIcon /></button></td>
                                 </tr>
                             </React.Fragment>
 
@@ -899,4 +1171,4 @@ const ReportsTableTotalMedia = ({ products, data }) => {
 };
 
 
-export { LineupTable, ReportsTable, ReportsTableTotalMedia, ChannelsTable, VodsTable };
+export { LineupTable, ReportsTable, ReportsTableTotalMedia, PermissionsTable, ChannelsTable, VodsTable, UsersTable };

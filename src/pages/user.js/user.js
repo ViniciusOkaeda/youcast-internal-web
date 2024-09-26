@@ -3,16 +3,19 @@ import { Card } from "../../components/cards/card";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
 import "./user.css";
+import api from "../../services/api";
 import { Header } from "../../components/header/header";
 import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
 import { ValidateToken, GetUserData, Logout } from "../../services/calls";
 import { RunCircle } from "@mui/icons-material";
+import { UsersTable } from "../../components/tables/table";
 
 function User() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true); // Inicialmente, está carregando
     const [error, setError] = useState('');
     const [userData, setUserData] = useState(null);
+    const [usersData, setUsersData] = useState([]);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [userPermissions, setUserPermissions] = useState([])
     console.log("minhas permissões", userPermissions)
@@ -25,6 +28,7 @@ function User() {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
                     setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0])
+                    getUsersData(result.availableServices.filter(e => e.service_name.includes("User"))[0])
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -51,6 +55,26 @@ function User() {
         checkData();
     }, [navigate]);
 
+
+    async function getUsersData(permissionInfo) {
+        setLoading(true);
+
+        const data = permissionInfo
+
+        try {
+            const request = await api.post('api/user/getUsersData', { data });
+            if (request.data.status === 1) {
+                setUsersData(request.data?.usersData || []);
+            } else {
+                setError('Failed to load data');
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -72,7 +96,7 @@ function User() {
                                 </div>
 
                                 : ""}
-                            <Card />
+                            <UsersTable usersData={usersData}/>
 
                         </>
 

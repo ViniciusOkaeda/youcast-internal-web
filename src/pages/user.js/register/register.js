@@ -5,6 +5,7 @@ import api from "../../../services/api";
 import { Menu } from "../../../components/menu/menu";
 import "./register.css";
 import { Header } from "../../../components/header/header";
+
 import { ValidateToken, GetUserData, Logout } from "../../../services/calls";
 
 function RegisterUser() {
@@ -14,12 +15,13 @@ function RegisterUser() {
         value: 1
     },{
         type: "Inativo",
-        value: 2
+        value: 0
     }]
 
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true); // Inicialmente, está carregando
     const [error, setError] = useState('');
+    const [sucess, setSucess] = useState('');
     const [user, setUser] = useState({
         username: "",
         password: "",
@@ -28,7 +30,7 @@ function RegisterUser() {
         lastname: "",
         email: "",
         active: 1,
-        permission: 0
+        type_user_id: 0
     })
 
     const [userData, setUserData] = useState(null);
@@ -95,12 +97,12 @@ function RegisterUser() {
     async function registerUser(permissionInfo) {
         setLoading(true);
 
-        const data = permissionInfo
+        const data = user
 
         try {
-            const request = await api.post('api/permission/getPermissionsData', { data });
+            const request = await api.post('api/user/register', { data });
             if (request.data.status === 1) {
-                setPermissionData(request.data?.permissionData || []);
+                setSucess(request.data.message)
             } else {
                 setError('Failed to load data');
             }
@@ -132,7 +134,7 @@ function RegisterUser() {
 
 
                             <div className="initialContainer">
-                                <h3>Novo usuário - Preencha todos os campos</h3>
+                                <h3>{sucess ? sucess : "Novo usuário - Preencha todos os campos"}</h3>
                             </div>
 
 
@@ -253,12 +255,18 @@ function RegisterUser() {
                                     <div className="style-input-group">
 
                                         
-                                        <label for="permission" className="style-input-filled">
-                                            <select name="permission">
+                                        <label htmlFor="permission" className="style-input-filled">
+                                            <select name="permission" onChange={e => {
+                                                setUser({
+                                                    ...user,
+                                                    type_user_id: e.target.value
+                                                });
+                                            }}>
+                                                <option value="">Selecione uma permissão</option>
                                                 {permissionData.map((perm, idx) => {
 
                                                     return(
-                                                        <option key={idx}>
+                                                        <option key={idx} value={perm.type_user_id}>
                                                             {perm.name}
                                                         </option>
                                                     )
@@ -275,10 +283,16 @@ function RegisterUser() {
 
                                         
                                         <label for="permission" className="style-input-filled">
-                                            <select name="permission">
+                                            <select name="active" onChange={e => {
+                                                setUser({
+                                                    ...user,
+                                                    active: e.target.value
+                                                })}}>
+                                                <option value="">Selecione uma opção</option>
+
                                                 {options.map((item, idx) => {
                                                     return(
-                                                        <option key={idx}>
+                                                        <option key={idx} value={item.value}>
                                                             {item.type}
                                                         </option>
                                                     )
@@ -294,7 +308,9 @@ function RegisterUser() {
                                 </div>
 
 
-                                <button onClick={registerUser}>Enviar</button>
+                                <button onClick={() =>{
+                                    registerUser();
+                                }}>Enviar</button>
 
 
 

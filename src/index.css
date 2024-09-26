@@ -170,7 +170,7 @@ code {
   display: flex;
   justify-content: space-between;
   background-color: #444444;
-  width: 170px;
+  width: auto;
   height: 40px;
 }
 
