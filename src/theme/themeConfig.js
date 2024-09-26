@@ -54,7 +54,7 @@ const ThemeConfig = () => {
 
       useEffect (() => {
 
-        fetch('themeOptions.json', {
+        fetch('/themeOptions.json', {
             headers: {
                 Accept: "application/json"
             }
