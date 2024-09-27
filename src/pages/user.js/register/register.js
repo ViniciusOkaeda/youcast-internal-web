@@ -104,7 +104,7 @@ function RegisterUser() {
             if (request.data.status === 1) {
                 setSucess(request.data.message)
             } else {
-                setError('Failed to load data');
+                setError(request.data.message);
             }
         } catch (error) {
             setError(error.message);

@@ -7,6 +7,7 @@ import Dashboard from "./pages/dashboard/dashboard";
 import User from "./pages/user.js/user";
 import UserRegister from "./pages/user.js/register/register"
 import Permission from "./pages/permission/permission";
+import RegisterPermission from "./pages/permission/register/register";
 import Lineup from "./pages/lineup/lineup";
 import Smtp from "./pages/smtp/smtp";
 import Service from "./pages/service/service";
@@ -20,6 +21,7 @@ const ProtectedDashboard = withAuth(Dashboard);
 const ProtectedUser = withAuth(User);
 const ProtectedUserRegister = withAuth(UserRegister);
 const ProtectedPermission = withAuth(Permission);
+const ProtectedRegisterPermission = withAuth(RegisterPermission)
 const ProtectedLineup = withAuth(Lineup);
 const ProtectedDetailedLineup = withAuth(DetailedLineup);
 const ProtectedSmtp = withAuth(Smtp);
@@ -42,6 +44,7 @@ function AllRoutes() {
         <Route path="/user" element={<ProtectedUser />} />
         <Route path="/user/register" element={<ProtectedUserRegister />} />
         <Route path="/permission" element={<ProtectedPermission />} />
+        <Route path="/permission/register" element={<ProtectedRegisterPermission />} />
         <Route path="/lineup" element={<ProtectedLineup />} />
         <Route path="/lineup/:id" element={<ProtectedDetailedLineup />} />
         <Route path="/smtp" element={<ProtectedSmtp />} />

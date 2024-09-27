@@ -1,24 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { Card } from "../../components/cards/card";
+import { Card } from "../../../components/cards/card";
 import { useNavigate } from "react-router-dom";
-import { Menu } from "../../components/menu/menu";
-import "./permission.css";
-import api from "../../services/api";
-import { Header } from "../../components/header/header";
-import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
+import api from "../../../services/api";
+import { Menu } from "../../../components/menu/menu";
+import "./register.css";
+import { Header } from "../../../components/header/header";
 
-import { ValidateToken, GetUserData, Logout } from "../../services/calls";
-import { PermissionsTable } from "../../components/tables/table";
+import { ValidateToken, GetUserData, Logout } from "../../../services/calls";
 
-function Permission() {
+function RegisterPermission() {
+
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true); // Inicialmente, está carregando
     const [error, setError] = useState('');
+    const [sucess, setSucess] = useState('');
+    const [permission, setPermission] = useState({
+        name: ""
+    })
+
     const [userData, setUserData] = useState(null);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [userPermissions, setUserPermissions] = useState([])
-    const [permissionsData, setPermissionsData] = useState([])
-
+    //console.log("minhas permissões", userPermissions)
 
     useEffect(() => {
         const loadData = async () => {
@@ -28,7 +31,6 @@ function Permission() {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
                     setUserPermissions(result.availableServices.filter(e => e.service_name.includes("Permission"))[0])
-                    getPermissionsData(result.availableServices.filter(e => e.service_name.includes("Permission"))[0])
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -55,17 +57,19 @@ function Permission() {
         checkData();
     }, [navigate]);
 
-    async function getPermissionsData(permissionInfo) {
+
+
+    async function registerPermission(permissionInfo) {
         setLoading(true);
 
-        const data = permissionInfo
+        const data = permission
 
         try {
-            const request = await api.post('api/permission/getPermissionsData', { data });
+            const request = await api.post('api/permission/register', { data });
             if (request.data.status === 1) {
-                setPermissionsData(request.data?.permissionData || []);
+                setSucess(request.data.message)
             } else {
-                setError('Failed to load data');
+                setError(request.data.message);
             }
         } catch (error) {
             setError(error.message);
@@ -73,8 +77,6 @@ function Permission() {
             setLoading(false);
         }
     }
-
-
 
     return (
         <div className="container flex">
@@ -90,19 +92,52 @@ function Permission() {
                         <>
                             {userPermissions.register_right === 1 ?
                                 <div className="registerButtonContainer">
-                                    <button className="registerButton" onClick={(() => navigate('/permission/register'))}>
-                                        <PersonAddRoundedIcon />
-                                        <p>Nova Permissão</p>
-                                    </button>
+
                                 </div>
 
                                 : ""}
-                            <PermissionsTable permissionsData={permissionsData} />
-                            <Card />
+
+
+                            <div className="initialContainer">
+                                <h3>{sucess ? sucess : "Nova permissão - Preencha todos os campos"}</h3>
+                            </div>
+
+
+                            <div className="registerContainer">
+                                <div className="inputContainer">
+                                    <div className="style-input-group">
+                                        <label className="style-input-filled">
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={permission.name}
+                                                onChange={e => {
+                                                    setPermission({
+                                                        ...permission,
+                                                        name: e.target.value
+                                                    });
+                                                }}
+                                                required
+                                            />
+                                            <span className="style-input-label">Digite o nome da permissão</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+
+                                <button onClick={() =>{
+                                    registerPermission();
+                                }}>Enviar</button>
+
+
+
+
+                            </div>
 
                         </>
 
                     )}
+
 
 
                 </div>
@@ -111,4 +146,4 @@ function Permission() {
     );
 }
 
-export default Permission;
+export default RegisterPermission;
