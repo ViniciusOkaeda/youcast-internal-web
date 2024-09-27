@@ -8,7 +8,13 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import { ExcelExportAtivosTotalMedia } from "../excel/excelExport";
 
 const LineupTable = ({ whitelistProducts, data }) => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchCompany, setSearchCompany] = useState('');
+    const [searchCategory, setSearchCategory] = useState('');
+    const [searchCnpj, setSearchCnpj] = useState('');
+    const [searchCity, setSearchCity] = useState('');
+    const [searchPackageCount, setSearchPackageCount] = useState('');
+    const [searchActive, setSearchActive] = useState('');
+
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
@@ -16,12 +22,54 @@ const LineupTable = ({ whitelistProducts, data }) => {
     const [expandedRowId, setExpandedRowId] = useState(null);
     const navigate = useNavigate();
 
-    let teste = data.filter(e => e.dealers_name === "NEW BRASIL")[0]
+    console.log("o whitelist", data)
 
-
-
-    //console.log("minha whitelist", whitelistProducts)
-    console.log("minha data", data.filter(e => e.dealers_name === "NEW BRASIL")[0])
+    const changeNameToDealerId = (dealer_name) => {
+        switch (dealer_name) {
+            case "":
+                return 1;
+            case "Vendor":
+                return 5;
+            case "Brand Yplay":
+                return 15;
+            case "Brand WSP":
+                return 23;
+            case "Brand Yplay - Cariap":
+                return 25;
+            case "Brand Yplay - IDCORP":
+                return 41;
+            case "Brand Olla":
+                return 134;
+            case "Brand Yplay - Alloha":
+                return 148;
+            case "Brand Yplay CO":
+                return 153;
+            case "Brand ClickIP":
+                return 166;
+            case "Brand Yplay CO - Fibercomm":
+                return 177;
+            case "Brand SouPlay":
+                return 178;
+            case "Brand Nortetel":
+                return 181;
+            case "Brand Yplay - Alloha":
+                return 184; // repetido, mas mantido conforme a original
+            case "Brand Yplay - Alloha":
+                return 186; // repetido, mas mantido conforme a original
+            case "Brand Yplay - Alloha":
+                return 190; // repetido, mas mantido conforme a original
+            case "Brand Yplay - InterfaceNet":
+                return 219;
+            case "Brand Newbrasil":
+                return 263;
+            case "Brand Uni":
+                return 278;
+            case "Brand Yplay - Kase":
+                return 299;
+            default:
+                return "N/A";
+        }
+    };
 
     // Resetar a página atual para 1 quando o número de itens por página mudar
     useEffect(() => {
@@ -30,11 +78,17 @@ const LineupTable = ({ whitelistProducts, data }) => {
 
     useEffect(() => {
         setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
-    }, [searchTerm]);
+    }, [searchCompany, searchCategory, searchCnpj, searchCity, searchPackageCount, searchActive]);
 
     // Filtrar os dados com base no termo de pesquisa
     const filteredData = data.filter((item) =>
-        item.dealers_company_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+        item.dealers_company_name?.toLowerCase().includes(searchCompany.toLowerCase()) &&
+        item.dealers_cnpj?.toLowerCase().includes(searchCnpj.toLowerCase()) &&
+        item.dealers_city?.toLowerCase().includes(searchCity.toLowerCase()) &&
+        item.dealers_company_name?.toLowerCase().includes(searchPackageCount.toLowerCase()) &&
+        item.dealers_company_name?.toLowerCase().includes(searchActive.toLowerCase()) &&
+        (searchCategory === '' ||
+            item.parent_dealers_id === changeNameToDealerId(searchCategory))
     );
 
     // Calcular os dados a serem exibidos na página atual
@@ -79,7 +133,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
 
     const changeDealerIdToName = (dealer_id) => {
 
-        switch(dealer_id){
+        switch (dealer_id) {
             case 1:
                 return "";
             case 5:
@@ -126,6 +180,8 @@ const LineupTable = ({ whitelistProducts, data }) => {
 
     }
 
+
+
     const handleViewMore = useCallback((id) => {
         setExpandedRowId(expandedRowId === id ? null : id);
     }, [expandedRowId]);
@@ -141,19 +197,20 @@ const LineupTable = ({ whitelistProducts, data }) => {
                 products_dealers_dealers_id: item.products_dealers_dealers_id,
                 products_dealers_products_id: item.products_dealers_products_id,
                 products_mw_id: item.products_mw_id,
-                products_name: item.products_name
+                products_name: item.products_name,
+                products_sms_active: item.products_sms_active,
+                bouquets_sms_active: item.bouquets_sms_active
             };
         });
     };
 
     const handleViewMore2 = (id, name) => {
-        navigate(`/lineup/${id}`, { state: { additionalParam: name} });
+        navigate(`/lineup/${id}`, { state: { additionalParam: name } });
     };
 
     const renderDetailsTable = (dealerId) => {
         const details = getDetailsForRow(dealerId);
-        console.log("os details", details)
-            return(
+        return (
             <React.Fragment>
                 <tr className="trExpanded">
                     <td colSpan="6">
@@ -161,9 +218,11 @@ const LineupTable = ({ whitelistProducts, data }) => {
                             <table className="subTable">
                                 <thead>
                                     <tr>
-                                        <th>Produto</th>
-                                        <th>ID Produto</th>
+                                        <th>Pacote</th>
+                                        <th>ID Pacote</th>
+                                        <th>Status Pacote (SMS)</th>
                                         <th>ID Bouquet</th>
+                                        <th>Status Pacote (Bouquet SMS)</th>
                                         <th>ID MW</th>
                                         <th>Ações</th>
                                     </tr>
@@ -173,7 +232,9 @@ const LineupTable = ({ whitelistProducts, data }) => {
                                         <tr key={idx}>
                                             <td>{products.products_name}</td>
                                             <td>{products.products_dealers_products_id}</td>
+                                            <td>{products.products_sms_active === 1 ? "Ativo" : "Inativo"}</td>
                                             <td>{products.products_bouquets_id}</td>
+                                            <td>{products.bouquets_sms_active === 1 ? "Ativo" : "Inativo"}</td>
                                             <td>{products.products_mw_id}</td>
                                             <td><button className="btnTableTd" onClick={() => handleViewMore2(products.products_mw_id, products.products_name)}>Ver Conteúdos</button></td>
                                         </tr>
@@ -185,7 +246,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
                 </tr>
 
             </React.Fragment>
-            )
+        )
     };
 
     return (
@@ -201,23 +262,6 @@ const LineupTable = ({ whitelistProducts, data }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar empresa..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
-
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
 
@@ -225,19 +269,85 @@ const LineupTable = ({ whitelistProducts, data }) => {
                 <table>
                     <thead>
                         <tr className="trHeader">
-                            <th>Empresa</th>
+                            <th>
+                                Empresa
+                            </th>
                             <th>Categoria</th>
                             <th>CNPJ</th>
                             <th>Cidade/Estado</th>
                             <th>Pacotes ativos</th>
-                            <th>Contrato</th>
+                            <th>Status Integração</th>
                             <th>Ações</th>
+                        </tr>
+                        <tr className="trHeader">
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar empresa..."
+                                        value={searchCompany}
+                                        onChange={(e) => setSearchCompany(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar categoria..."
+                                        value={searchCategory}
+                                        onChange={(e) => setSearchCategory(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar cnpj..."
+                                        value={searchCnpj}
+                                        onChange={(e) => setSearchCnpj(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar cidade..."
+                                        value={searchCity}
+                                        onChange={(e) => setSearchCity(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar qtd pacotes..."
+                                        value={searchPackageCount}
+                                        onChange={(e) => setSearchPackageCount(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar status..."
+                                        value={searchActive}
+                                        onChange={(e) => setSearchActive(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th></th>
+
                         </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((empresa, idx) => (
                             <React.Fragment key={idx}>
-                                <tr  className="trBody">
+                                <tr className="trBody">
                                     <td>{empresa.dealers_company_name === null ? empresa.dealers_name : empresa.dealers_company_name}</td>
                                     <td>{changeDealerIdToName(empresa.parent_dealers_id)}</td>
                                     <td>{empresa.dealers_cnpj}</td>
@@ -249,7 +359,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
                                     <td>
                                         <button className="btnTableTd" onClick={() => handleViewMore(empresa.dealers_id)}>
                                             {expandedRowId === empresa.dealers_id ? 'Ver Menos' : 'Ver Mais'} <ArrowCircleRightRoundedIcon />
-                                        </button>                                
+                                        </button>
                                     </td>
                                 </tr>
                                 {expandedRowId === empresa.dealers_id && renderDetailsTable(empresa.dealers_id)}
@@ -264,16 +374,29 @@ const LineupTable = ({ whitelistProducts, data }) => {
             <div className="pagination">
                 {renderPageNumbers()}
             </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+
+
         </div>
     );
 }
+
 const ChannelsTable = ({ channelsData }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
 
     useEffect(() => {
         setCurrentPage(1);
@@ -344,23 +467,6 @@ const ChannelsTable = ({ channelsData }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar canal..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
-
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
 
@@ -370,19 +476,86 @@ const ChannelsTable = ({ channelsData }) => {
                         <tr className="trHeader">
                             <th>ID</th>
                             <th>Canal</th>
+                            <th>Status</th>
                             <th>ID Pacote</th>
                             <th>Pacote</th>
+                            <th>Status Pacote (MW)</th>
+
+                        </tr>
+                        <tr className="trHeader">
+                            <th>            
+                                <div className="searchContainerToTable">
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar canal..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar canal..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar canal..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar canal..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar canal..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                                <input
+                                    type="text"
+                                    placeholder="Pesquisar canal..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            </th>
 
                         </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((channels, idx) => (
                             <React.Fragment key={idx}>
-                                <tr  className="trBody">
+                                <tr className="trBody">
                                     <td>{channels.channels_id}</td>
                                     <td>{channels.channels_name}</td>
+                                    <td>{channels.channels_active === 1 ? "Ativo" : "Inativo"}</td>
                                     <td>{channels.packages_id}</td>
                                     <td>{channels.packages_name}</td>
+                                    <td>{channels.packages_active === 1 ? "Ativo" : "Inativo"}</td>
                                 </tr>
                             </React.Fragment>
 
@@ -395,6 +568,17 @@ const ChannelsTable = ({ channelsData }) => {
             <div className="pagination">
                 {renderPageNumbers()}
             </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
         </div>
     );
 }
@@ -405,7 +589,6 @@ const VodsTable = ({ vodsData }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    console.log("meus vod", vodsData)
 
     useEffect(() => {
         setCurrentPage(1);
@@ -476,23 +659,6 @@ const VodsTable = ({ vodsData }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar VOD..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
-
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
 
@@ -506,11 +672,54 @@ const VodsTable = ({ vodsData }) => {
                             <th>Grupo</th>
 
                         </tr>
+                        <tr className="trHeader">
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar VOD..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar VOD..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar VOD..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar VOD..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+
+                        </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((vods, idx) => (
                             <React.Fragment key={idx}>
-                                <tr  className="trBody">
+                                <tr className="trBody">
                                     <td>{vods.vod_id}</td>
                                     <td>{vods.vods_name}</td>
                                     <td>{vods.packages_vods_id}</td>
@@ -527,6 +736,17 @@ const VodsTable = ({ vodsData }) => {
             <div className="pagination">
                 {renderPageNumbers()}
             </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
         </div>
     );
 }
@@ -538,7 +758,6 @@ const UsersTable = ({ usersData }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    console.log("usersData", usersData)
     useEffect(() => {
         setCurrentPage(1);
     }, [itemsPerPage]);
@@ -608,23 +827,6 @@ const UsersTable = ({ usersData }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
-
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
 
@@ -643,11 +845,98 @@ const UsersTable = ({ usersData }) => {
                             <th>Ações</th>
 
                         </tr>
+                        <tr className="trHeader">
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                                
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                                
+                            </th>
+
+                        </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((users, idx) => (
                             <React.Fragment key={idx}>
-                                <tr  className="trBody">
+                                <tr className="trBody">
                                     <td>{users.user_id}</td>
                                     <td>{users.username}</td>
                                     <td>{users.name}</td>
@@ -669,6 +958,17 @@ const UsersTable = ({ usersData }) => {
             <div className="pagination">
                 {renderPageNumbers()}
             </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
         </div>
     );
 }
@@ -680,7 +980,6 @@ const PermissionsTable = ({ permissionsData }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    console.log("usersData", permissionsData)
     useEffect(() => {
         setCurrentPage(1);
     }, [itemsPerPage]);
@@ -750,22 +1049,6 @@ const PermissionsTable = ({ permissionsData }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar permissão..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
 
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
@@ -779,11 +1062,40 @@ const PermissionsTable = ({ permissionsData }) => {
                             <th>Ações</th>
 
                         </tr>
+
+                        <tr className="trHeader">
+                            <th>            
+                                <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar permissão..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
+            </div>
+            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar permissão..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+
+            </div>
+                            </th>
+                            <th>
+                                
+                            </th>
+
+                        </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((permission, idx) => (
                             <React.Fragment key={idx}>
-                                <tr  className="trBody">
+                                <tr className="trBody">
                                     <td>{permission.type_user_id}</td>
                                     <td>{permission.name}</td>
                                     <td><button className="btnTableTd"><EditRoundedIcon /></button></td>
@@ -798,6 +1110,274 @@ const PermissionsTable = ({ permissionsData }) => {
 
             <div className="pagination">
                 {renderPageNumbers()}
+            </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+        </div>
+    );
+}
+const ServicesTable = ({ servicesData }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    console.log("usersData", servicesData)
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [itemsPerPage]);
+
+    useEffect(() => {
+        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
+    }, [searchTerm]);
+
+    // Filtrar os dados com base no termo de pesquisa
+    const filteredData = servicesData.filter((item) =>
+        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+    );
+
+    // Calcular os dados a serem exibidos na página atual
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+    // Criar botões de paginação
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+
+    // Função para renderizar a lista de páginas com ...
+    const renderPageNumbers = () => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) => (
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        ));
+    };
+
+
+
+
+    return (
+        <div className="tableContainer">
+            <div className="tableHeader">
+                <div className="tableTitle">
+                    <h2>Serviços Ativos</h2>
+                </div>
+                <div className="tableExport">
+                    <button className="exportButton">
+                        <MoreVertRoundedIcon />
+                    </button>
+                </div>
+            </div>
+
+            {loading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+
+            <div className="tableWrapper">
+                <table>
+                    <thead>
+                        <tr className="trHeader">
+                            <th>ID</th>
+                            <th>Serviço</th>
+                            <th>Descrição</th>
+                            <th>MW Url</th>
+                            <th>MW Login</th>
+                            <th>MW Secret</th>
+                            <th>MW Aux</th>
+                            <th>SMS Url</th>
+                            <th>SMS Login</th>
+                            <th>SMS Secret</th>
+                            <th>SMS Aux</th>
+                            <th>Ações</th>
+
+                        </tr>
+                        <tr className="trHeader">
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar serviço..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                                
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {currentItems.map((services, idx) => (
+                            <React.Fragment key={idx}>
+                                <tr className="trBodyService">
+                                    <td>{services.type_service_id}</td>
+                                    <td>{services.name}</td>
+                                    <td>{services.description}</td>
+                                    <td>{services.middleware_mw}</td>
+                                    <td>{services.username_mw}</td>
+                                    <td>{services.secret_mw}</td>
+                                    <td>{services.aux_mw}</td>
+                                    <td>{services.middleware_sms}</td>
+                                    <td>{services.username_sms}</td>
+                                    <td>{services.secret_sms}</td>
+                                    <td>{services.aux_sms}</td>
+                                    <td><button className="btnTableTd"><EditRoundedIcon /></button></td>
+                                </tr>
+                            </React.Fragment>
+
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div className="pagination">
+                {renderPageNumbers()}
+            </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
             </div>
         </div>
     );
@@ -886,22 +1466,7 @@ const ReportsTable = ({ data }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Relatório..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
+
 
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
@@ -914,6 +1479,41 @@ const ReportsTable = ({ data }) => {
                             <th>Relatório</th>
                             <th>Descrição</th>
                             <th>Ações</th>
+                        </tr>
+                        <tr className="trHeader">
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Relatório..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Relatório..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Relatório..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                                
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -940,6 +1540,17 @@ const ReportsTable = ({ data }) => {
 
             <div className="pagination">
                 {renderPageNumbers()}
+            </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
             </div>
         </div>
     )
@@ -1106,22 +1717,7 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                 </div>
             </div>
 
-            <div className="searchContainer">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Provedor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <label>
-                    Itens por página:
-                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
-                        ))}
-                    </select>
-                </label>
-            </div>
+
 
             {loading && <p>Loading...</p>}
             {error && <p>Error: {error}</p>}
@@ -1136,6 +1732,61 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                             <th>Cidade</th>
                             <th>Assinantes</th>
                             <th>Ações</th>
+                        </tr>
+                        <tr className="trHeader">
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Provedor..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Provedor..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Provedor..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Provedor..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                            <div className="searchContainerToTable">
+                <input
+                    type="text"
+                    placeholder="Pesquisar Provedor..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+                            </th>
+                            <th>
+                                
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1166,9 +1817,20 @@ const ReportsTableTotalMedia = ({ products, data }) => {
             <div className="pagination">
                 {renderPageNumbers()}
             </div>
+
+            <div className="searchContainer">
+                <label>
+                    Itens por página:
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                        {[5, 10, 15, 20].map(number => (
+                            <option key={number} value={number}>{number}</option>
+                        ))}
+                    </select>
+                </label>
+            </div>
         </div>
     );
 };
 
 
-export { LineupTable, ReportsTable, ReportsTableTotalMedia, PermissionsTable, ChannelsTable, VodsTable, UsersTable };
+export { LineupTable, ReportsTable, ReportsTableTotalMedia, ServicesTable, PermissionsTable, ChannelsTable, VodsTable, UsersTable };

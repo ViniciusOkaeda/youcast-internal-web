@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Card } from "../../components/cards/card";
 import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
 import "./service.css";
 import { Header } from "../../components/header/header";
+import api from "../../services/api";
+import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
 import { ValidateToken, GetUserData, Logout } from "../../services/calls";
+import { ServicesTable } from "../../components/tables/table";
 
 function Service() {
     const navigate = useNavigate();
@@ -12,6 +14,8 @@ function Service() {
     const [error, setError] = useState('');
     const [userData, setUserData] = useState(null);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
+    const [userPermissions, setUserPermissions] = useState([])
+    const [servicesData, setServicesData] = useState([])
 
     useEffect(() => {
         const loadData = async () => {
@@ -20,6 +24,8 @@ function Service() {
                 if (result) {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
+                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("Service"))[0])
+                    getServicesData(result.availableServices.filter(e => e.service_name.includes("Service"))[0])
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -46,6 +52,26 @@ function Service() {
         checkData();
     }, [navigate]);
 
+
+    async function getServicesData(permissionInfo) {
+        setLoading(true);
+
+        const data = permissionInfo
+
+        try {
+            const request = await api.post('api/service/getServicesData', { data });
+            if (request.data.status === 1) {
+                setServicesData(request.data?.serviceData || []);
+            } else {
+                setError('Failed to load data');
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -58,7 +84,16 @@ function Service() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
-                            <Card />
+                            {userPermissions.register_right === 1 ?
+                                <div className="registerButtonContainer">
+                                    <button className="registerButton" onClick={(() => navigate('/service/register'))}>
+                                        <PersonAddRoundedIcon />
+                                        <p>Novo Serviço</p>
+                                    </button>
+                                </div>
+
+                                : ""}
+                            <ServicesTable servicesData={servicesData} />
 
                         </>
                     )}

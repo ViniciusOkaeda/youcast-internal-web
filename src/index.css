@@ -161,6 +161,24 @@ code {
   margin: 10px 0 15px 0;
 }
 
+.registerContainer {
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  border-radius: 5px;
+display: flex;
+flex-direction: column;
+
+}
+
+.inputContainer {
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
+  flex-direction:row;
+  gap: 1rem;
+}
+
 .registerButtonContainer{
   width: 100%;
   height: auto;

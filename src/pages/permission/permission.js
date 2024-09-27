@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
 import "./permission.css";
 import api from "../../services/api";
-import { Header } from "../../components/header/header";
 import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
+import { Header } from "../../components/header/header";
 
 import { ValidateToken, GetUserData, Logout } from "../../services/calls";
 import { PermissionsTable } from "../../components/tables/table";
@@ -98,7 +98,6 @@ function Permission() {
 
                                 : ""}
                             <PermissionsTable permissionsData={permissionsData} />
-                            <Card />
 
                         </>
 

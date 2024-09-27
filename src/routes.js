@@ -11,6 +11,7 @@ import RegisterPermission from "./pages/permission/register/register";
 import Lineup from "./pages/lineup/lineup";
 import Smtp from "./pages/smtp/smtp";
 import Service from "./pages/service/service";
+import RegisterService from "./pages/service/register/register";
 import Report from "./pages/report/report";
 import DetailedReport from "./pages/report/detailedReport";
 import DetailedLineup from "./pages/lineup/detailedLineup";
@@ -26,6 +27,7 @@ const ProtectedLineup = withAuth(Lineup);
 const ProtectedDetailedLineup = withAuth(DetailedLineup);
 const ProtectedSmtp = withAuth(Smtp);
 const ProtectedService = withAuth(Service);
+const ProtectedRegisterService = withAuth(RegisterService)
 const ProtectedReport = withAuth(Report);
 const ProtectedDetailReport = withAuth(DetailedReport);
 
@@ -49,6 +51,7 @@ function AllRoutes() {
         <Route path="/lineup/:id" element={<ProtectedDetailedLineup />} />
         <Route path="/smtp" element={<ProtectedSmtp />} />
         <Route path="/service" element={<ProtectedService />} />
+        <Route path="/service/register" element={<ProtectedRegisterService />} />
         <Route path="/report" element={<ProtectedReport />} />
         <Route path="/report/:id" element={<ProtectedDetailReport />} />
 

@@ -91,48 +91,47 @@ function RegisterPermission() {
                     ) : (
                         <>
                             {userPermissions.register_right === 1 ?
-                                <div className="registerButtonContainer">
+                                <>
+                                    <div className="initialContainer">
+                                        <h3>{sucess ? sucess : "Nova permissão - Preencha todos os campos"}</h3>
+                                    </div>
 
-                                </div>
+
+                                    <div className="registerContainer">
+                                        <div className="inputContainer">
+                                            <div className="style-input-group">
+                                                <label className="style-input-filled">
+                                                    <input
+                                                        type="text"
+                                                        name="name"
+                                                        value={permission.name}
+                                                        onChange={e => {
+                                                            setPermission({
+                                                                ...permission,
+                                                                name: e.target.value
+                                                            });
+                                                        }}
+                                                        required
+                                                    />
+                                                    <span className="style-input-label">Digite o nome da permissão</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+
+                                        <button onClick={() =>{
+                                            registerPermission();
+                                        }}>Enviar</button>
+
+
+
+
+                                    </div>
+                                </>
 
                                 : ""}
 
 
-                            <div className="initialContainer">
-                                <h3>{sucess ? sucess : "Nova permissão - Preencha todos os campos"}</h3>
-                            </div>
-
-
-                            <div className="registerContainer">
-                                <div className="inputContainer">
-                                    <div className="style-input-group">
-                                        <label className="style-input-filled">
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={permission.name}
-                                                onChange={e => {
-                                                    setPermission({
-                                                        ...permission,
-                                                        name: e.target.value
-                                                    });
-                                                }}
-                                                required
-                                            />
-                                            <span className="style-input-label">Digite o nome da permissão</span>
-                                        </label>
-                                    </div>
-                                </div>
-
-
-                                <button onClick={() =>{
-                                    registerPermission();
-                                }}>Enviar</button>
-
-
-
-
-                            </div>
 
                         </>
 
