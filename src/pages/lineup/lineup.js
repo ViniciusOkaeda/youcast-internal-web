@@ -70,7 +70,7 @@ function Lineup() {
         try {
             const request = await api.post('api/dealer/getDealersData', { data });
             if (request.data.status === 1) {
-                setDealers(request.data?.data[0].dealersInfo.rows || []);
+                setDealers(request.data?.data[0].dealersInfo || []);
             } else {
                 setError('Failed to load data');
             }

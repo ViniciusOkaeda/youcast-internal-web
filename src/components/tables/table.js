@@ -5,14 +5,14 @@ import api from "../../services/api";
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import { ExcelExportAtivosTotalMedia } from "../excel/excelExport";
+import { ExcelExportAtivosTotalMedia, ExcelExportDealers } from "../excel/excelExport";
 
 const LineupTable = ({ whitelistProducts, data }) => {
     const [searchCompany, setSearchCompany] = useState('');
+    const [searchFantasy, setSearchFantasy] = useState('');
     const [searchCategory, setSearchCategory] = useState('');
     const [searchCnpj, setSearchCnpj] = useState('');
     const [searchCity, setSearchCity] = useState('');
-    const [searchPackageCount, setSearchPackageCount] = useState('');
     const [searchActive, setSearchActive] = useState('');
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,82 +22,64 @@ const LineupTable = ({ whitelistProducts, data }) => {
     const [expandedRowId, setExpandedRowId] = useState(null);
     const navigate = useNavigate();
 
-    console.log("o whitelist", data)
 
-    const changeNameToDealerId = (dealer_name) => {
-        switch (dealer_name) {
-            case "":
-                return 1;
-            case "Vendor":
-                return 5;
-            case "Brand Yplay":
-                return 15;
-            case "Brand WSP":
-                return 23;
-            case "Brand Yplay - Cariap":
-                return 25;
-            case "Brand Yplay - IDCORP":
-                return 41;
-            case "Brand Olla":
-                return 134;
-            case "Brand Yplay - Alloha":
-                return 148;
-            case "Brand Yplay CO":
-                return 153;
-            case "Brand ClickIP":
-                return 166;
-            case "Brand Yplay CO - Fibercomm":
-                return 177;
-            case "Brand SouPlay":
-                return 178;
-            case "Brand Nortetel":
-                return 181;
-            case "Brand Yplay - Alloha":
-                return 184; // repetido, mas mantido conforme a original
-            case "Brand Yplay - Alloha":
-                return 186; // repetido, mas mantido conforme a original
-            case "Brand Yplay - Alloha":
-                return 190; // repetido, mas mantido conforme a original
-            case "Brand Yplay - InterfaceNet":
-                return 219;
-            case "Brand Newbrasil":
-                return 263;
-            case "Brand Uni":
-                return 278;
-            case "Brand Yplay - Kase":
-                return 299;
-            default:
-                return "N/A";
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsOpen(false);
         }
     };
 
     // Resetar a página atual para 1 quando o número de itens por página mudar
     useEffect(() => {
         setCurrentPage(1);
+
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Remove o ouvinte de eventos quando o componente é desmontado
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+
+        };
     }, [itemsPerPage]);
+
+    const toggleDropdown = () => {
+        setIsOpen((prev) => !prev);
+    };
 
     useEffect(() => {
         setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
-    }, [searchCompany, searchCategory, searchCnpj, searchCity, searchPackageCount, searchActive]);
+    }, [searchCompany, searchCategory, searchCnpj, searchCity, searchActive]);
+
+    const handleStatusFilter = (status) => {
+        if (status.toLowerCase() === 'ativo') {
+            return 1; // Para "Ativo"
+        } else if (status.toLowerCase() === 'inativo') {
+            return 0; // Para "Inativo"
+        }
+        return null; // Para outros casos, não aplicar filtro
+    };
 
     // Filtrar os dados com base no termo de pesquisa
     const filteredData = data.filter((item) =>
         item.dealers_company_name?.toLowerCase().includes(searchCompany.toLowerCase()) &&
+        item.dealers_fantasy_name?.toLowerCase().includes(searchFantasy.toLowerCase()) &&
+        item.dealers_category?.toLowerCase().includes(searchCategory.toLowerCase()) &&
         item.dealers_cnpj?.toLowerCase().includes(searchCnpj.toLowerCase()) &&
         item.dealers_city?.toLowerCase().includes(searchCity.toLowerCase()) &&
-        item.dealers_company_name?.toLowerCase().includes(searchPackageCount.toLowerCase()) &&
-        item.dealers_company_name?.toLowerCase().includes(searchActive.toLowerCase()) &&
-        (searchCategory === '' ||
-            item.parent_dealers_id === changeNameToDealerId(searchCategory))
+        (handleStatusFilter(searchActive) === null ||
+        item.dealers_active === handleStatusFilter(searchActive))
+
     );
 
     // Calcular os dados a serem exibidos na página atual
+    const totalItems = filteredData.length;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-
+    const currentItems = itemsPerPage === totalItems ? filteredData : filteredData.slice(indexOfFirstItem, indexOfLastItem);
     // Criar botões de paginação
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const totalPages = itemsPerPage === totalItems ? 1 : Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
@@ -130,57 +112,6 @@ const LineupTable = ({ whitelistProducts, data }) => {
             )
         ));
     };
-
-    const changeDealerIdToName = (dealer_id) => {
-
-        switch (dealer_id) {
-            case 1:
-                return "";
-            case 5:
-                return "Vendor";
-            case 15:
-                return "Brand Yplay";
-            case 23:
-                return "Brand WSP";
-            case 25:
-                return "Brand Yplay - Cariap";
-            case 41:
-                return "Brand Yplay - IDCORP";
-            case 134:
-                return "Brand Olla";
-            case 148:
-                return "Brand Yplay - Alloha";
-            case 153:
-                return "Brand Yplay CO";
-            case 166:
-                return "Brand ClickIP";
-            case 177:
-                return "Brand Yplay CO - Fibercomm";
-            case 178:
-                return "Brand SouPlay";
-            case 181:
-                return "Brand Nortetel";
-            case 184:
-                return "Brand Yplay - Alloha";
-            case 186:
-                return "Brand Yplay - Alloha";
-            case 190:
-                return "Brand Yplay - Alloha";
-            case 219:
-                return "Brand Yplay - InterfaceNet";
-            case 263:
-                return "Brand Newbrasil";
-            case 278:
-                return "Brand Uni";
-            case 299:
-                return "Brand Yplay - Kase";
-            default:
-                return "N/A";
-        }
-
-    }
-
-
 
     const handleViewMore = useCallback((id) => {
         setExpandedRowId(expandedRowId === id ? null : id);
@@ -249,16 +180,32 @@ const LineupTable = ({ whitelistProducts, data }) => {
         )
     };
 
+
     return (
         <div className="tableContainer">
             <div className="tableHeader">
                 <div className="tableTitle">
                     <h2>Detalhes Clientes</h2>
                 </div>
-                <div className="tableExport">
-                    <button className="exportButton">
+                <div className="tableExport" ref={dropdownRef}>
+                    <button className="exportButton" onClick={toggleDropdown}>
                         <MoreVertRoundedIcon />
                     </button>
+                    {isOpen && (
+
+                        <div className="dropdown-table">
+                            <ul>
+                                <li>
+                                    <ExcelExportDealers
+                                        data={currentItems}
+                                        whitelistProducts={whitelistProducts}
+
+                                    />
+                                </li>
+                            </ul>
+
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -270,13 +217,14 @@ const LineupTable = ({ whitelistProducts, data }) => {
                     <thead>
                         <tr className="trHeader">
                             <th>
-                                Empresa
+                                Razão Social
                             </th>
+                            <th>Nome Fantasia</th>
                             <th>Categoria</th>
                             <th>CNPJ</th>
                             <th>Cidade/Estado</th>
-                            <th>Pacotes ativos</th>
                             <th>Status Integração</th>
+                            <th>Pacotes ativos</th>
                             <th>Ações</th>
                         </tr>
                         <tr className="trHeader">
@@ -287,6 +235,16 @@ const LineupTable = ({ whitelistProducts, data }) => {
                                         placeholder="Pesquisar empresa..."
                                         value={searchCompany}
                                         onChange={(e) => setSearchCompany(e.target.value)}
+                                    />
+                                </div>
+                            </th>
+                            <th>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar nome fantasia..."
+                                        value={searchFantasy}
+                                        onChange={(e) => setSearchFantasy(e.target.value)}
                                     />
                                 </div>
                             </th>
@@ -322,40 +280,35 @@ const LineupTable = ({ whitelistProducts, data }) => {
                             </th>
                             <th>
                                 <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar qtd pacotes..."
-                                        value={searchPackageCount}
-                                        onChange={(e) => setSearchPackageCount(e.target.value)}
-                                    />
+                                    <select
+                                        id="statusSelect"
+                                        value={searchActive}
+                                        onChange={(e) => setSearchActive(e.target.value)}
+                                    >
+                                        <option value="">Todos</option>
+                                        <option value="ativo">Ativo</option>
+                                        <option value="inativo">Inativo</option>
+                                    </select>
                                 </div>
                             </th>
                             <th>
-                                <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar status..."
-                                        value={searchActive}
-                                        onChange={(e) => setSearchActive(e.target.value)}
-                                    />
-                                </div>
                             </th>
                             <th></th>
-
                         </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((empresa, idx) => (
                             <React.Fragment key={idx}>
                                 <tr className="trBody">
-                                    <td>{empresa.dealers_company_name === null ? empresa.dealers_name : empresa.dealers_company_name}</td>
-                                    <td>{changeDealerIdToName(empresa.parent_dealers_id)}</td>
+                                    <td>{empresa.dealers_company_name}</td>
+                                    <td>{empresa.dealers_fantasy_name}</td>
+                                    <td>{empresa.dealers_category}</td>
                                     <td>{empresa.dealers_cnpj}</td>
                                     <td>{empresa.dealers_city + "/" + empresa.dealers_state}</td>
+                                    <td>{empresa.dealers_active === 1 ? "Ativo" : "Inativo"}</td>
                                     <td>
                                         {whitelistProducts.filter(whitelist => whitelist.products_dealers_dealers_id === empresa.dealers_id).map(e => e).length}
                                     </td>
-                                    <td>{empresa.dealers_active === 1 ? "Ativo" : "Inativo"}</td>
                                     <td>
                                         <button className="btnTableTd" onClick={() => handleViewMore(empresa.dealers_id)}>
                                             {expandedRowId === empresa.dealers_id ? 'Ver Menos' : 'Ver Mais'} <ArrowCircleRightRoundedIcon />
@@ -379,8 +332,8 @@ const LineupTable = ({ whitelistProducts, data }) => {
                 <label>
                     Itens por página:
                     <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
+                        {[5, 10, 15, 20, totalItems].map(number => (
+                            <option key={number} value={number}>{number === totalItems ? 'Todos' : number}</option>
                         ))}
                     </select>
                 </label>

@@ -86,6 +86,16 @@ border: 1px solid rgba(0, 0, 0, 0.2);
     height: 35px;
 }
 
+.searchContainerToTable select {
+border-radius: 2px;
+border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.searchContainerToTable select{
+    width: 100%;
+    height: 35px;
+}
+
 .tableWrapper {
     overflow-x: auto;
 }
