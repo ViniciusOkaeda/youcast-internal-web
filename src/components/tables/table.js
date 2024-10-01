@@ -5,7 +5,7 @@ import api from "../../services/api";
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
-import { ExcelExportAtivosTotalMedia, ExcelExportDealers } from "../excel/excelExport";
+import { ExcelExportAtivosTotalMedia, ExcelExportDealers, ExcelExportChannels, ExcelExportVods } from "../excel/excelExport";
 
 const LineupTable = ({ whitelistProducts, data }) => {
     const [searchCompany, setSearchCompany] = useState('');
@@ -69,7 +69,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
         item.dealers_cnpj?.toLowerCase().includes(searchCnpj.toLowerCase()) &&
         item.dealers_city?.toLowerCase().includes(searchCity.toLowerCase()) &&
         (handleStatusFilter(searchActive) === null ||
-        item.dealers_active === handleStatusFilter(searchActive))
+            item.dealers_active === handleStatusFilter(searchActive))
 
     );
 
@@ -346,31 +346,63 @@ const LineupTable = ({ whitelistProducts, data }) => {
 
 const ChannelsTable = ({ channelsData }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchId, setSearchId] = useState('');
+    const [searchChannelName, setSearchChannelName] = useState('');
+    const [searchChannelStatus, setSearchChannelStatus] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    };
 
     useEffect(() => {
         setCurrentPage(1);
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Remove o ouvinte de eventos quando o componente é desmontado
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+
+        };
     }, [itemsPerPage]);
+    const toggleDropdown = () => {
+        setIsOpen((prev) => !prev);
+    };
 
     useEffect(() => {
         setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
     }, [searchTerm]);
 
+    const handleStatusFilter = (status) => {
+        if (status.toLowerCase() === 'ativo') {
+            return 1; // Para "Ativo"
+        } else if (status.toLowerCase() === 'inativo') {
+            return 0; // Para "Inativo"
+        }
+        return null; // Para outros casos, não aplicar filtro
+    };
+
     // Filtrar os dados com base no termo de pesquisa
     const filteredData = channelsData.filter((item) =>
-        item.channels_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+        item.channels_id?.toString().toLowerCase().includes(searchId.toLowerCase()) &&
+        item.channels_name?.toLowerCase().includes(searchChannelName.toLowerCase()) &&
+        (handleStatusFilter(searchChannelStatus) === null ||
+            item.channels_active === handleStatusFilter(searchChannelStatus))
     );
 
     // Calcular os dados a serem exibidos na página atual
+    const totalItems = filteredData.length;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-
+    const currentItems = itemsPerPage === totalItems ? filteredData : filteredData.slice(indexOfFirstItem, indexOfLastItem);
     // Criar botões de paginação
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const totalPages = itemsPerPage === totalItems ? 1 : Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
@@ -413,10 +445,23 @@ const ChannelsTable = ({ channelsData }) => {
                 <div className="tableTitle">
                     <h2>Canais Ativos</h2>
                 </div>
-                <div className="tableExport">
-                    <button className="exportButton">
+                <div className="tableExport" ref={dropdownRef}>
+                    <button className="exportButton" onClick={toggleDropdown}>
                         <MoreVertRoundedIcon />
                     </button>
+                    {isOpen && (
+
+                        <div className="dropdown-table">
+                            <ul>
+                                <li>
+                                    <ExcelExportChannels
+                                        data={currentItems}
+                                    />
+                                </li>
+                            </ul>
+
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -429,90 +474,75 @@ const ChannelsTable = ({ channelsData }) => {
                         <tr className="trHeader">
                             <th>ID</th>
                             <th>Canal</th>
-                            <th>Status</th>
-                            <th>ID Pacote</th>
+                            <th>Status Canal</th>
                             <th>Pacote</th>
                             <th>Status Pacote (MW)</th>
+                            <th>ID Pacote</th>
 
                         </tr>
                         <tr className="trHeader">
-                            <th>            
+                            <th>
                                 <div className="searchContainerToTable">
-                                <input
-                                    type="text"
-                                    placeholder="Pesquisar canal..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar canal..."
+                                        value={searchId}
+                                        onChange={(e) => setSearchId(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                                <input
-                                    type="text"
-                                    placeholder="Pesquisar canal..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar canal..."
+                                        value={searchChannelName}
+                                        onChange={(e) => setSearchChannelName(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                                <input
-                                    type="text"
-                                    placeholder="Pesquisar canal..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+                                <div className="searchContainerToTable">
+                                    <select
+                                        id="statusSelect"
+                                        value={searchChannelStatus}
+                                        onChange={(e) => setSearchChannelStatus(e.target.value)}
+                                    >
+                                        <option value="">Todos</option>
+                                        <option value="ativo">Ativo</option>
+                                        <option value="inativo">Inativo</option>
+                                    </select>
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                                <input
-                                    type="text"
-                                    placeholder="Pesquisar canal..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                                <input
-                                    type="text"
-                                    placeholder="Pesquisar canal..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
+
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                                <input
-                                    type="text"
-                                    placeholder="Pesquisar canal..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
                             </th>
 
                         </tr>
                     </thead>
                     <tbody>
-                        {currentItems.map((channels, idx) => (
+                        {currentItems.length > 0 ? currentItems.map((channels, idx) => (
                             <React.Fragment key={idx}>
                                 <tr className="trBody">
                                     <td>{channels.channels_id}</td>
                                     <td>{channels.channels_name}</td>
                                     <td>{channels.channels_active === 1 ? "Ativo" : "Inativo"}</td>
-                                    <td>{channels.packages_id}</td>
                                     <td>{channels.packages_name}</td>
                                     <td>{channels.packages_active === 1 ? "Ativo" : "Inativo"}</td>
+                                    <td>{channels.packages_id}</td>
                                 </tr>
                             </React.Fragment>
 
-                        ))}
+                        ))
+                            :
+                            <tr>
+                                <td><p>Nenhum Canal encontrado.</p></td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -526,8 +556,8 @@ const ChannelsTable = ({ channelsData }) => {
                 <label>
                     Itens por página:
                     <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
+                        {[5, 10, 15, 20, totalItems].map(number => (
+                            <option key={number} value={number}>{number === totalItems ? 'Todos' : number}</option>
                         ))}
                     </select>
                 </label>
@@ -536,33 +566,56 @@ const ChannelsTable = ({ channelsData }) => {
     );
 }
 const VodsTable = ({ vodsData }) => {
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchId, setSearchId] = useState('');
+    const [searchVodName, setSearchVodName] = useState('');
+    const [searchVodGroup, setSearchVodGroup] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    };
 
 
     useEffect(() => {
         setCurrentPage(1);
+        document.addEventListener('mousedown', handleClickOutside);
+
+        // Remove o ouvinte de eventos quando o componente é desmontado
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+
+        };
     }, [itemsPerPage]);
+
+    const toggleDropdown = () => {
+        setIsOpen((prev) => !prev);
+    };
 
     useEffect(() => {
         setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
-    }, [searchTerm]);
+    }, [searchId, searchVodName, searchVodGroup]);
 
     // Filtrar os dados com base no termo de pesquisa
     const filteredData = vodsData.filter((item) =>
-        item.vods_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
+        item.vod_id?.toString().toLowerCase().includes(searchId.toLowerCase()) &&
+        item.vods_name?.toLowerCase().includes(searchVodName.toLowerCase()) &&
+        item.group_vod_name?.toLowerCase().includes(searchVodGroup.toLowerCase()) || false
     );
 
-    // Calcular os dados a serem exibidos na página atual
+
+
+    const totalItems = filteredData.length;
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-
+    const currentItems = itemsPerPage === totalItems ? filteredData : filteredData.slice(indexOfFirstItem, indexOfLastItem);
     // Criar botões de paginação
-    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const totalPages = itemsPerPage === totalItems ? 1 : Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = [];
     for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
@@ -605,10 +658,23 @@ const VodsTable = ({ vodsData }) => {
                 <div className="tableTitle">
                     <h2>VODs Ativos</h2>
                 </div>
-                <div className="tableExport">
-                    <button className="exportButton">
+                <div className="tableExport" ref={dropdownRef}>
+                    <button className="exportButton" onClick={toggleDropdown}>
                         <MoreVertRoundedIcon />
                     </button>
+                    {isOpen && (
+
+                        <div className="dropdown-table">
+                            <ul>
+                                <li>
+                                    <ExcelExportVods
+                                        data={currentItems}
+                                    />
+                                </li>
+                            </ul>
+
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -621,66 +687,63 @@ const VodsTable = ({ vodsData }) => {
                         <tr className="trHeader">
                             <th>ID</th>
                             <th>VOD</th>
-                            <th>ID Pacote</th>
                             <th>Grupo</th>
+                            <th>ID Pacote</th>
 
                         </tr>
                         <tr className="trHeader">
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar VOD..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Id..."
+                                        value={searchId}
+                                        onChange={(e) => setSearchId(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar VOD..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar VOD..."
+                                        value={searchVodName}
+                                        onChange={(e) => setSearchVodName(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar VOD..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar VOD..."
+                                        value={searchVodGroup}
+                                        onChange={(e) => setSearchVodGroup(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar VOD..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
                             </th>
 
                         </tr>
                     </thead>
                     <tbody>
-                        {currentItems.map((vods, idx) => (
+                        {currentItems.length > 0 ? currentItems.map((vods, idx) => (
                             <React.Fragment key={idx}>
                                 <tr className="trBody">
                                     <td>{vods.vod_id}</td>
                                     <td>{vods.vods_name}</td>
-                                    <td>{vods.packages_vods_id}</td>
                                     <td>{vods.group_vod_name}</td>
+                                    <td>{vods.packages_vods_id}</td>
                                 </tr>
                             </React.Fragment>
 
-                        ))}
+                        ))
+                            :
+                            <tr>
+                                <td><p>Nenhum VOD encontrado.</p></td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
@@ -694,8 +757,8 @@ const VodsTable = ({ vodsData }) => {
                 <label>
                     Itens por página:
                     <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
-                        {[5, 10, 15, 20].map(number => (
-                            <option key={number} value={number}>{number}</option>
+                        {[5, 10, 15, 20, totalItems].map(number => (
+                            <option key={number} value={number}>{number === totalItems ? 'Todos' : number}</option>
                         ))}
                     </select>
                 </label>
@@ -800,88 +863,88 @@ const UsersTable = ({ usersData }) => {
                         </tr>
                         <tr className="trHeader">
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
-                                
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar username..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar username..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                                
+
                             </th>
 
                         </tr>
@@ -1017,30 +1080,30 @@ const PermissionsTable = ({ permissionsData }) => {
                         </tr>
 
                         <tr className="trHeader">
-                            <th>            
-                                <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar permissão..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-
-            </div>
-            </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar permissão..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar permissão..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
 
-            </div>
+                                </div>
                             </th>
                             <th>
-                                
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar permissão..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+
+                                </div>
+                            </th>
+                            <th>
+
                             </th>
 
                         </tr>
@@ -1178,117 +1241,117 @@ const ServicesTable = ({ servicesData }) => {
                         </tr>
                         <tr className="trHeader">
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar serviço..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar serviço..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                                
+
                             </th>
 
                         </tr>
@@ -1435,37 +1498,37 @@ const ReportsTable = ({ data }) => {
                         </tr>
                         <tr className="trHeader">
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Relatório..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Relatório..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Relatório..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Relatório..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Relatório..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Relatório..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                                
+
                             </th>
                         </tr>
                     </thead>
@@ -1688,57 +1751,57 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                         </tr>
                         <tr className="trHeader">
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Provedor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Provedor..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Provedor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Provedor..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Provedor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Provedor..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Provedor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Provedor..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                            <div className="searchContainerToTable">
-                <input
-                    type="text"
-                    placeholder="Pesquisar Provedor..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+                                <div className="searchContainerToTable">
+                                    <input
+                                        type="text"
+                                        placeholder="Pesquisar Provedor..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </th>
                             <th>
-                                
+
                             </th>
                         </tr>
                     </thead>
