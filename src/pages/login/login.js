@@ -53,6 +53,7 @@ function Login() {
             const request = await api.post('api/auth/login', {user})
             console.log("meu request vem", request)
             if(request.data.status === 1) {
+                console.log("deu certo")
                 setLoading(false);
                 navigate("/dashboard");
             } else {
