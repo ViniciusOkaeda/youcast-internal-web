@@ -145,11 +145,16 @@ table {
     color: var(--font-color);
 }
 
+.tdFlex {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
 .trBodyService{
     border: 1px solid rgba(0, 0, 0, 0.1);
     color: var(--font-color);
     height: 120px;
-
 }
 
 tr {
@@ -180,9 +185,13 @@ th {
     box-shadow: none;
 }
 
+.btnTableTdMaxWidth {
+    max-width: 50px;
+
+}
+
 .btnTableTd .MuiSvgIcon-root{
-margin-left: 5px;
-font-size: 1.2rem;
+font-size: 1.3rem;
 }
 
 .btnNavigationTable {

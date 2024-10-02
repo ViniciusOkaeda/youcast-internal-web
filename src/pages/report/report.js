@@ -59,7 +59,6 @@ function Report() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
-                            <Card />
                             <ReportsTable data={userDataAvailable.filter(e => e.service_name.includes("Report"))} />
 
                         </>

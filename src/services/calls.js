@@ -16,7 +16,6 @@ export const GetUserData = async () => {
 export const ValidateToken = async () => {
     try {
         const request = await api.post('api/auth/validateToken', {})
-        console.log("request", request.data)
         return request.data
 
     } catch (error) {

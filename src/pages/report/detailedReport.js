@@ -32,7 +32,6 @@ function DetailedReport() {
                 if (result) {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-                    //console.log("resultados", result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")) || [])
                     setUserFilteredDataAvailable(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")) || []);
                     getDealerData(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")));
                     getProductData(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")));
@@ -121,8 +120,6 @@ function DetailedReport() {
                             {userFilteredDataAvailable.length > 0
                                 ?
                                 <div>
-                                    <Card />
-
                                     <ReportsTableTotalMedia products={products} data={dealers} />
 
                                 </div>

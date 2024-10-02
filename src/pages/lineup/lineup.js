@@ -115,7 +115,6 @@ function Lineup() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
-                            <Card />
                             <LineupTable whitelistProducts={products} data={dealers} channelsData={channels} vodsData={vods} />
 
                         </>

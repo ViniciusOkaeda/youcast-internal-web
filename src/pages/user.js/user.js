@@ -18,7 +18,6 @@ function User() {
     const [usersData, setUsersData] = useState([]);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [userPermissions, setUserPermissions] = useState([])
-    console.log("minhas permissões", userPermissions)
 
     useEffect(() => {
         const loadData = async () => {

@@ -282,7 +282,7 @@ function RegisterUser() {
                                     <div className="style-input-group">
 
                                         
-                                        <label for="permission" className="style-input-filled">
+                                        <label htmlFor="permission" className="style-input-filled">
                                             <select name="active" onChange={e => {
                                                 setUser({
                                                     ...user,
