@@ -52,6 +52,12 @@ body {
  --style-color-bg-high-contrast: #ba0d0d;
 }
 
+.menuAction {
+  color: var(--font-color);
+  cursor: pointer;
+  padding: 0 2px;
+}
+
 
 a {
   text-decoration: none;
@@ -148,6 +154,9 @@ code {
   width: 100%;
   height: auto;
   margin-top: 20px;
+}
+.detailNotFound p{
+  color: var(--font-color);
 }
 
 .initialContainer {
