@@ -6,6 +6,7 @@ import Login from "./pages/login/login";
 import Dashboard from "./pages/dashboard/dashboard";
 import User from "./pages/user.js/user";
 import UserRegister from "./pages/user.js/register/register"
+import EditUser from "./pages/user.js/edit/edit";
 import Permission from "./pages/permission/permission";
 import RegisterPermission from "./pages/permission/register/register";
 import PermissionServices from "./pages/permission/permissionServices/permissionServices";
@@ -23,6 +24,7 @@ const ProtectedDashboard = withAuth(Dashboard);
 
 const ProtectedUser = withAuth(User);
 const ProtectedUserRegister = withAuth(UserRegister);
+const ProtectedUserEdit = withAuth(EditUser);
 
 const ProtectedPermission = withAuth(Permission);
 const ProtectedRegisterPermission = withAuth(RegisterPermission)
@@ -54,6 +56,7 @@ function AllRoutes() {
 
         <Route path="/user" element={<ProtectedUser />} />
         <Route path="/user/register" element={<ProtectedUserRegister />} />
+        <Route path="/user/edit/:id" element={<ProtectedUserEdit />} />
 
         <Route path="/permission" element={<ProtectedPermission />} />
         <Route path="/permission/register" element={<ProtectedRegisterPermission />} />

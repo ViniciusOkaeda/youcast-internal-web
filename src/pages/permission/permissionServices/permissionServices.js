@@ -11,9 +11,6 @@ import { PermissionsTable } from "../../../components/tables/table";
 
 function PermissionServices() {
 
-
-
-
     const options = [{
         type: "Ativo",
         value: 1
@@ -343,9 +340,6 @@ function PermissionServices() {
                                         <button onClick={() => {
                                             registerServicePermission();
                                         }}>Enviar</button>
-
-
-
 
                                     </div>
                                 </>

@@ -6,7 +6,7 @@ import "./user.css";
 import api from "../../services/api";
 import { Header } from "../../components/header/header";
 import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
-import { ValidateToken, GetUserData, Logout } from "../../services/calls";
+import { ValidateToken, GetUserData, Logout, GetUsersData } from "../../services/calls";
 import { RunCircle } from "@mui/icons-material";
 import { UsersTable } from "../../components/tables/table";
 
@@ -27,7 +27,7 @@ function User() {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
                     setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0])
-                    getUsersData(result.availableServices.filter(e => e.service_name.includes("User"))[0])
+                    GetUsersData(result.availableServices.filter(e => e.service_name.includes("User"))[0], setLoading, setUsersData, setError )
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -54,26 +54,6 @@ function User() {
         checkData();
     }, [navigate]);
 
-
-    async function getUsersData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/user/getUsersData', { data });
-            if (request.data.status === 1) {
-                setUsersData(request.data?.usersData || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -94,8 +74,10 @@ function User() {
                                     </button>
                                 </div>
 
-                                : ""}
-                            <UsersTable usersData={usersData}/>
+                            : ""}
+                            
+                            <UsersTable usersData={usersData} userData={userData} />
+
 
                         </>
 

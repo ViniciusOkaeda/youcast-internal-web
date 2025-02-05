@@ -7,7 +7,7 @@ import api from "../../services/api";
 import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
 import { Header } from "../../components/header/header";
 
-import { ValidateToken, GetUserData, Logout } from "../../services/calls";
+import { ValidateToken, GetUserData, Logout, GetPermissionsData } from "../../services/calls";
 import { PermissionsTable } from "../../components/tables/table";
 
 function Permission() {
@@ -28,7 +28,7 @@ function Permission() {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
                     setUserPermissions(result.availableServices.filter(e => e.service_name.includes("Permission"))[0])
-                    getPermissionsData(result.availableServices.filter(e => e.service_name.includes("Permission"))[0])
+                    GetPermissionsData(result.availableServices.filter(e => e.service_name.includes("Permission"))[0], setLoading, setPermissionsData, setError)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -54,27 +54,6 @@ function Permission() {
         loadData();
         checkData();
     }, [navigate]);
-
-    async function getPermissionsData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/permission/getPermissionsData', { data });
-            if (request.data.status === 1) {
-                setPermissionsData(request.data?.permissionData || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-
 
     return (
         <div className="container flex">

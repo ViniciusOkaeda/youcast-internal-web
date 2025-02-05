@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card } from "../../../components/cards/card";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api";
 import { Menu } from "../../../components/menu/menu";
-import "./register.css";
 import { Header } from "../../../components/header/header";
+import { useParams, useLocation } from "react-router-dom";
 
-import { ValidateToken, GetUserData, Logout, GetPermissionsData, RegisterUserData } from "../../../services/calls";
+import { ValidateToken, Logout, GetUserDataById, GetPermissionsData } from "../../../services/calls";
 
-function RegisterUser() {
+function EditUser() {
+    const { id } = useParams();
+    const location = useLocation();
 
     const options = [{
         type: "Ativo",
@@ -34,6 +35,7 @@ function RegisterUser() {
     })
 
     const [userData, setUserData] = useState(null);
+    const [userDataById, setUserDataById] = useState([]);
     const [permissionData, setPermissionData] = useState([]);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [userPermissions, setUserPermissions] = useState([])
@@ -41,12 +43,13 @@ function RegisterUser() {
     useEffect(() => {
         const loadData = async () => {
             try {
-                const result = await GetUserData();
+                const result = await GetUserDataById(parseInt(id));
                 if (result) {
-                    setUserData(result);
-                    setUserDataAvailable(result.availableServices || []);
-                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("User"))[0])
-                    GetPermissionsData(result.availableServices.filter(e => e.service_name.includes("Permission"))[0], setLoading, setPermissionData, setError)
+                    setUserData(location.state.userData)
+                    setUserDataById(result.userInfo[0]);
+                    setUserDataAvailable(location.state.userData.availableServices || []);
+                    setUserPermissions(location.state.userData.availableServices.filter(e => e.service_name.includes("User"))[0])
+                    GetPermissionsData(location.state.userData.availableServices.filter(e => e.service_name.includes("Permission"))[0], setLoading, setPermissionData, setError)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -73,6 +76,24 @@ function RegisterUser() {
         checkData();
     }, [navigate]);
 
+    async function editUser(permissionInfo) {
+        setLoading(true);
+        const data = user
+
+        try {
+            const request = await api.post('api/user/edit', { data });
+            if (request.data.status === 1) {
+                setSucess(request.data.message)
+            } else {
+                setError(request.data.message);
+            }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -94,7 +115,7 @@ function RegisterUser() {
 
 
                             <div className="initialContainer">
-                                <h3>{sucess ? sucess : "Novo usuário - Preencha todos os campos"}</h3>
+                                <h3>{sucess ? sucess : "Editar Usuário"}</h3>
                             </div>
 
 
@@ -105,7 +126,7 @@ function RegisterUser() {
                                             <input
                                                 type="text"
                                                 name="name"
-                                                value={user.name}
+                                                value={userDataById.name}
                                                 onChange={e => {
                                                     setUser({
                                                         ...user,
@@ -122,7 +143,7 @@ function RegisterUser() {
                                             <input
                                                 type="text"
                                                 name="lastname"
-                                                value={user.lastname}
+                                                value={userDataById.lastname}
                                                 onChange={e => {
                                                     setUser({
                                                         ...user,
@@ -143,7 +164,7 @@ function RegisterUser() {
                                             <input
                                                 type="text"
                                                 name="username"
-                                                value={user.username}
+                                                value={userDataById.username}
                                                 onChange={e => {
                                                     setUser({
                                                         ...user,
@@ -198,7 +219,7 @@ function RegisterUser() {
                                         <input
                                             type="text"
                                             name="email"
-                                            value={user.email}
+                                            value={userDataById.email}
                                             onChange={e => {
                                                 setUser({
                                                     ...user,
@@ -216,7 +237,9 @@ function RegisterUser() {
 
                                         
                                         <label htmlFor="permission" className="style-input-filled">
-                                            <select name="permission" onChange={e => {
+                                            <select name="permission" 
+                                            value={userDataById.type_user_id}
+                                            onChange={e => {
                                                 setUser({
                                                     ...user,
                                                     type_user_id: e.target.value
@@ -241,9 +264,10 @@ function RegisterUser() {
 
                                     <div className="style-input-group">
 
-                                        
                                         <label htmlFor="permission" className="style-input-filled">
-                                            <select name="active" onChange={e => {
+                                            <select name="active" 
+                                            value={userDataById.active}
+                                            onChange={e => {
                                                 setUser({
                                                     ...user,
                                                     active: e.target.value
@@ -260,7 +284,6 @@ function RegisterUser() {
 
                                             </select>
 
-
                                         <span className="style-input-label input-margin-right">Definir usuário como: </span>
                                         </label>
 
@@ -269,7 +292,7 @@ function RegisterUser() {
 
 
                                 <button onClick={() =>{
-                                    RegisterUserData(setLoading, user, setSucess, setError);
+                                    editUser();
                                 }}>Enviar</button>
 
 
@@ -289,4 +312,4 @@ function RegisterUser() {
     );
 }
 
-export default RegisterUser;
+export default EditUser;

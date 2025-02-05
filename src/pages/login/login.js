@@ -5,7 +5,7 @@ import sucessBgd from '../../assets/bgd_sucess2.png'
 import sucessBgd2 from '../../assets/bgd_qsl.jpg'
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
-import { ValidateToken, Logout } from "../../services/calls";
+import { ValidateToken, Logout, SendLogin } from "../../services/calls";
 
 
 function Login() {
@@ -20,9 +20,6 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    /*
-    
-    */
     useEffect(() => {
         const checkData = async () => {
             try {
@@ -45,31 +42,6 @@ function Login() {
         }; 
         checkData();
     },[])
-
-
-    async function sendLogin() {
-
-        setLoading(true);
-        
-        try {
-            console.log("até aqui cheguei")
-            const request = await api.post('api/auth/login', {user})
-            console.log("meu request vem", request)
-            if(request.data.status === 1) {
-                console.log("deu certo")
-                setLoading(false);
-                navigate("/dashboard");
-            } else {
-                setError(request.data.message);
-                setLoading(false);
-            }
-            //console.log("o request aq", request)
-
-        } catch (error) {
-            setError(error);
-            setLoading(false);
-        }
-    }
 
     return(
         <div className="containerLogin">
@@ -128,7 +100,9 @@ function Login() {
 
                             <button 
                             disabled={loading === true}
-                            onClick={sendLogin}>
+                            onClick={() => {
+                                SendLogin(user, setLoading, navigate, setError)
+                            }}>
                             {loading === true ? "Aguarde..." : "Enviar"}
                             </button>
 

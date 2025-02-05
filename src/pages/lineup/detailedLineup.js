@@ -6,7 +6,7 @@ import { Menu } from "../../components/menu/menu";
 import "./lineup.css"
 import api from "../../services/api";
 import { Header } from "../../components/header/header";
-import { ValidateToken, GetUserData, Logout } from "../../services/calls";
+import { ValidateToken, GetUserData, Logout, GetChannelsData, GetVodsData } from "../../services/calls";
 
 
 
@@ -25,7 +25,6 @@ function DetailedLineup() {
     const { id } = useParams(); // Pega o ID da URL
     const location = useLocation();
     const { additionalParam } = location.state || {}; // Captura parâmetros adicionais se existirem
-    console.log("os adicionais", additionalParam)
 
     useEffect(() => {
         const loadData = async () => {
@@ -36,9 +35,8 @@ function DetailedLineup() {
                     let dataAvailableWithConcat = dataAvailable.concat(id)
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-
-                    getChannelsData(dataAvailableWithConcat)
-                    getVodsData(dataAvailableWithConcat)
+                    GetChannelsData(dataAvailableWithConcat, setLoading, setChannels, setError)
+                    GetVodsData(dataAvailableWithConcat, setLoading, setVods, setError)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -65,44 +63,6 @@ function DetailedLineup() {
         checkData();
     }, [navigate]);
 
-    async function getChannelsData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/channel/getChannelsData', { data });
-            if (request.data.status === 1) {
-                setChannels(request.data?.channelsData || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function getVodsData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/vod/getVodsData', { data });
-            if (request.data.status === 1) {
-                setVods(request.data?.vodsData || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -119,8 +79,8 @@ function DetailedLineup() {
                                 <h3>Pacote: {additionalParam}</h3>
 
                             </div>
-                            <ChannelsTable channelsData={channels} />
-                            <VodsTable vodsData={vods} />
+                            <ChannelsTable channelsData={channels} loading={loading} error={error} />
+                            <VodsTable vodsData={vods} loading={loading} error={error} />
 
                         </>
 

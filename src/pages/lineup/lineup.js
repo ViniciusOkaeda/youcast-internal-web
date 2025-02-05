@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card } from "../../components/cards/card"
 import { LineupTable } from "../../components/tables/table"
 import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
 import "./lineup.css"
-import api from "../../services/api";
 import { Header } from "../../components/header/header";
-import { ValidateToken, GetUserData, Logout } from "../../services/calls";
+import { ValidateToken, GetUserData, Logout, GetDealerData, GetWhitelistProductsData } from "../../services/calls";
 
 
 
@@ -21,10 +19,6 @@ function Lineup() {
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [dealers, setDealers] = useState([]);
     const [products, setProducts] = useState([]);
-    const [channels, setChannels] = useState([]);
-    const [vods, setVods] = useState([]);
-
-
 
     useEffect(() => {
         const loadData = async () => {
@@ -34,8 +28,8 @@ function Lineup() {
                     let dataAvailable = result.availableServices.filter(e => e.service_name.includes("Lineup"))
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-                    getDealerData(dataAvailable)
-                    getWhitelistProductsData(dataAvailable)
+                    GetDealerData(dataAvailable, setLoading, setDealers, setError)
+                    GetWhitelistProductsData(dataAvailable, setLoading, setProducts, setError)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -62,47 +56,6 @@ function Lineup() {
         checkData();
     }, [navigate]);
 
-    async function getDealerData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/dealer/getDealersData', { data });
-            if (request.data.status === 1) {
-                setDealers(request.data?.data[0].dealersInfo || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function getWhitelistProductsData(permissionInfo) {
-        setLoading(true);
-
-        const data = permissionInfo
-
-        try {
-            const request = await api.post('api/product/getWhitelistProductsData', { data });
-            if (request.data.status === 1) {
-                //console.log("o req product", request.data?.productsInfo.rows)
-                setProducts(request.data?.productsInfo.rows || []);
-            } else {
-                setError('Failed to load data');
-            }
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-
-
     return (
         <div className="container flex">
             <Menu data={userDataAvailable} />
@@ -115,7 +68,7 @@ function Lineup() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
-                            <LineupTable whitelistProducts={products} data={dealers} channelsData={channels} vodsData={vods} />
+                            <LineupTable whitelistProducts={products} data={dealers} />
 
                         </>
                     )}

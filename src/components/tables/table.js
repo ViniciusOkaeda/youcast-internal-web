@@ -345,15 +345,13 @@ const LineupTable = ({ whitelistProducts, data }) => {
     );
 }
 
-const ChannelsTable = ({ channelsData }) => {
+const ChannelsTable = ({ channelsData, loading, error }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchId, setSearchId] = useState('');
     const [searchChannelName, setSearchChannelName] = useState('');
     const [searchChannelStatus, setSearchChannelStatus] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const handleClickOutside = (event) => {
@@ -556,14 +554,13 @@ const ChannelsTable = ({ channelsData }) => {
         </div>
     );
 }
-const VodsTable = ({ vodsData }) => {
+const VodsTable = ({ vodsData, loading, error }) => {
     const [searchId, setSearchId] = useState('');
     const [searchVodName, setSearchVodName] = useState('');
     const [searchVodGroup, setSearchVodGroup] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    //const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const handleClickOutside = (event) => {
@@ -758,7 +755,7 @@ const VodsTable = ({ vodsData }) => {
     );
 }
 
-const UsersTable = ({ usersData }) => {
+const UsersTable = ({ usersData, userData }) => {
     const [searchId, setSearchId] = useState('');
     const [searchUsername, setSearchUsername] = useState('');
     const [searchName, setSearchName] = useState('');
@@ -771,6 +768,12 @@ const UsersTable = ({ usersData }) => {
     const [itemsPerPage, setItemsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const navigate = useNavigate();
+
+    const handleNavigate = (id) => {
+        navigate(`edit/${id}`, {state: {userData}})
+    }
 
     useEffect(() => {
         setCurrentPage(1);
@@ -861,8 +864,8 @@ const UsersTable = ({ usersData }) => {
                             <th>Sobrenome</th>
                             <th>Email</th>
                             <th>Permissão</th>
-                            <th>Último Acesso</th>
                             <th>Status</th>
+                            <th>Último Acesso</th>
                             <th>Ações</th>
 
                         </tr>
@@ -961,7 +964,7 @@ const UsersTable = ({ usersData }) => {
                                     <td>{users.type_user}</td>
                                     <td>{users.active === 1 ? "Ativo" : "Inativo"}</td>
                                     <td>{users.last_acess === null ? "Nenhum Acesso" : users.last_acess}</td>
-                                    <td><button className="btnTableTd btnTableTdMaxWidth"><EditRoundedIcon /></button></td>
+                                    <td><button className="btnTableTd btnTableTdMaxWidth" onClick={() => handleNavigate(users.user_id)}><EditRoundedIcon /></button></td>
                                 </tr>
                             </React.Fragment>
 
