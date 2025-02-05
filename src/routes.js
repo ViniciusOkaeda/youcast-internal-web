@@ -71,7 +71,7 @@ function AllRoutes() {
         <Route path="/service/register" element={<ProtectedRegisterService />} />
         
         <Route path="/report" element={<ProtectedReport />} />
-        <Route path="/report/:id" element={<ProtectedDetailReport />} />
+        <Route path="/report/:id" element={<DetailedReport />} />
 
         <Route path="*" element={<Navigate to ={token ? "/dashboard" : "/"} />} /> 
 

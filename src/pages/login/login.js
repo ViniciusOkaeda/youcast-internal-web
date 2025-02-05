@@ -1,8 +1,6 @@
 import React, {useState, useEffect} from "react";
 import './login.css'
 import Logo from '../../assets/Logo_youcast_branco.png'
-import sucessBgd from '../../assets/bgd_sucess2.png'
-import sucessBgd2 from '../../assets/bgd_qsl.jpg'
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { ValidateToken, Logout, SendLogin } from "../../services/calls";

@@ -1605,18 +1605,9 @@ const ReportsTable = ({ data }) => {
 }
 
 const ReportsTableTotalMedia = ({ products, data }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchProvider, setSearchProvider] = useState('');
-    const [searchSocial, setSearchSocial] = useState('');
-    const [searchCnpj, setSearchCnpj] = useState('');
-    const [searchCity, setSearchCity] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
     const [expandedRowId, setExpandedRowId] = useState(null);
-
-
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -1629,43 +1620,24 @@ const ReportsTableTotalMedia = ({ products, data }) => {
     };
 
     useEffect(() => {
-        setCurrentPage(1);
-
         document.addEventListener('mousedown', handleClickOutside);
-
-        // Remove o ouvinte de eventos quando o componente é desmontado
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
-
         };
-    }, [itemsPerPage]);
+    }, []);
 
-    useEffect(() => {
-        setCurrentPage(1); // Resetar a página para 1 quando searchTerm mudar
-    }, [searchTerm]);
-
-    const toggleDropdown = () => {
-        setIsOpen((prev) => !prev);
-    };
-
-
-    //O report totalmedia é uma particularidade onde foi necessário criar 2 filteredData. Em casos normais será somente 1
     const filteredData = useMemo(() =>
         data.filter(item => products.map(e => e.dealer).includes(item.dealers_name)) || [],
-        [data, products]);
-
-    const filteredData2 = useMemo(() =>
-        filteredData.filter(item =>
-            item.dealers_name?.toLowerCase().includes(searchTerm.toLowerCase()) || false
-        ),
-        [filteredData, searchTerm]);
+        [data, products]
+    );
 
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = useMemo(() => filteredData2.slice(indexOfFirstItem, indexOfLastItem),
-        [filteredData2, indexOfFirstItem, indexOfLastItem]);
+    const currentItems = useMemo(() => filteredData.slice(indexOfFirstItem, indexOfLastItem),
+        [filteredData, indexOfFirstItem, indexOfLastItem]
+    );
 
-    const totalPages = useMemo(() => Math.ceil(filteredData2.length / itemsPerPage), [filteredData2, itemsPerPage]);
+    const totalPages = useMemo(() => Math.ceil(filteredData.length / itemsPerPage), [filteredData, itemsPerPage]);
 
     const renderPageNumbers = useCallback(() => {
         const maxPageNumbers = 5;
@@ -1699,15 +1671,13 @@ const ReportsTableTotalMedia = ({ products, data }) => {
     }, [expandedRowId]);
 
     const getDetailsForRow = (dealerName) => {
-        return products.filter(dados => dealerName.includes(dados.dealer)).map(item => {
-            return {
-                dealer: item.dealer,
-                customer: item.customers.map(customer => ({
-                    login: customer.login,
-                    haveTotalMedia: customer.packages.filter(pkg => pkg.haveTotalMedia === 1).length
-                }))
-            };
-        });
+        return products.filter(dados => dealerName.includes(dados.dealer)).map(item => ({
+            dealer: item.dealer,
+            customer: item.customers.map(customer => ({
+                login: customer.login,
+                haveTotalMedia: customer.packages.filter(pkg => pkg.haveTotalMedia === 1).length
+            }))
+        }));
     };
 
     const renderDetailsTable = (dealerName) => {
@@ -1745,34 +1715,26 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                     <h2>Total Media</h2>
                 </div>
                 <div className="tableExport" ref={dropdownRef}>
-                    <button className="exportButton" onClick={toggleDropdown}>
+                    <button className="exportButton" onClick={() => setIsOpen((prev) => !prev)}>
                         <MoreVertRoundedIcon />
                     </button>
                     {isOpen && (
-
                         <div className="dropdown-table">
                             <ul>
                                 <li>
                                     <ExcelExportAtivosTotalMedia
-                                        data={data.filter(item => products.map(e => e.dealer).includes(item.dealers_name))}
+                                        data={filteredData}
                                         month={0}
                                         assinant={0}
                                         fatured={0}
                                         usersDealerInfo={products}
-
                                     />
                                 </li>
                             </ul>
-
                         </div>
                     )}
                 </div>
             </div>
-
-
-
-            {loading && <p>Loading...</p>}
-            {error && <p>Error: {error}</p>}
 
             <div className="tableWrapper">
                 <table>
@@ -1785,61 +1747,6 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                             <th>Assinantes</th>
                             <th>Ações</th>
                         </tr>
-                        <tr className="trHeader">
-                            <th>
-                                <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar Provedor..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </th>
-                            <th>
-                                <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar Provedor..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </th>
-                            <th>
-                                <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar Provedor..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </th>
-                            <th>
-                                <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar Provedor..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </th>
-                            <th>
-                                <div className="searchContainerToTable">
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar Provedor..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </th>
-                            <th>
-
-                            </th>
-                        </tr>
                     </thead>
                     <tbody>
                         {currentItems.map((e, idx) => (
@@ -1848,7 +1755,7 @@ const ReportsTableTotalMedia = ({ products, data }) => {
                                     <td>{e.dealers_company_name}</td>
                                     <td>{e.dealers_fantasy_name}</td>
                                     <td>{e.dealers_cnpj}</td>
-                                    <td>{e.dealers_city + "/" + e.dealers_state}</td>
+                                    <td>{`${e.dealers_city}/${e.dealers_state}`}</td>
                                     <td>
                                         {getDetailsForRow(e.dealers_name).reduce((acc, curr) =>
                                             acc + curr.customer.length, 0)}

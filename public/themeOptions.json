@@ -83,17 +83,7 @@
                     "menuDisplay": "none",
                     "externalHeight": "100vh",
                     "externalBorder": "none"
-                },
-                {
-                    "menuWidth": "5vw",
-                    "menuOptionsWidthContainer": "80%",
-                    "menuOptionsWidth": "100%",
-                    "menuHeight": "100vh",
-                    "menuDisplay": "none",
-                    "externalHeight": "98vh",
-                    "externalBorder": "10px"
                 }
-
             ]
 
 

@@ -12,6 +12,8 @@ function DetailedReport() {
     const { id } = useParams(); // Pega o ID da URL
     const location = useLocation();
     const { additionalParam } = location.state || {}; // Captura parâmetros adicionais se existirem
+
+    const [check, setCheck] = useState('')
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true); // Inicialmente, está carregando
     const [error, setError] = useState('');
@@ -30,11 +32,13 @@ function DetailedReport() {
             try {
                 const result = await GetUserData();
                 if (result) {
-                    setUserData(result);
-                    setUserDataAvailable(result.availableServices || []);
-                    setUserFilteredDataAvailable(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")) || []);
-                    getDealerData(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")));
-                    getProductData(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")));
+                        setUserData(result);
+                        setUserDataAvailable(result.availableServices || []);
+                        setUserFilteredDataAvailable(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")) || []);
+                        getDealerData(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")));
+                        getProductData(result.availableServices.filter(e => e.type_service_id.toString() === id && e.service_name.includes("Report")));
+                    
+
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');

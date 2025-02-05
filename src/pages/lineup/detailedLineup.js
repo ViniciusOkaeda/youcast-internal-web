@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import { Card } from "../../components/cards/card"
 import { ChannelsTable, LineupTable, VodsTable } from "../../components/tables/table"
 import { Menu } from "../../components/menu/menu";
 import "./lineup.css"
