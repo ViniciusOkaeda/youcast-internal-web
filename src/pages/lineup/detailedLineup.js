@@ -24,6 +24,7 @@ function DetailedLineup() {
     const { id } = useParams(); // Pega o ID da URL
     const location = useLocation();
     const { additionalParam } = location.state || {}; // Captura parâmetros adicionais se existirem
+    console.log("meus parametros", additionalParam)
 
     useEffect(() => {
         const loadData = async () => {
@@ -74,8 +75,13 @@ function DetailedLineup() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
+                            <div className="registerButtonContainer">
+                                    <button className="registerButton" onClick={(() => navigate('../lineup'))}>
+                                        <p>Voltar</p>
+                                    </button>
+                            </div>
                             <div className="initialContainer">
-                                <h3>Pacote: {additionalParam}</h3>
+                                <h3>{additionalParam}</h3>
 
                             </div>
                             <ChannelsTable channelsData={channels} loading={loading} error={error} />

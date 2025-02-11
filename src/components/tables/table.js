@@ -136,11 +136,42 @@ const LineupTable = ({ whitelistProducts, data }) => {
         });
     };
 
-    const handleViewMore2 = (id, name) => {
-        navigate(`/lineup/${id}`, { state: { additionalParam: name } });
+    const handleViewMore2 = (id, name, dealerName) => {
+        const tableState = {
+            expandedRowId,
+            currentPage,
+            searchCompany,
+            searchFantasy,
+            searchCategory,
+            searchCnpj,
+            searchCity,
+            searchActive,
+        };
+    
+        sessionStorage.setItem('lineupTableState', JSON.stringify(tableState));
+
+        navigate(`/lineup/${id}`, { state: { additionalParam: `Empresa: ${dealerName}, Pacote: ${name}`  } });
     };
 
-    const renderDetailsTable = (dealerId) => {
+    useEffect(() => {
+        // Verifica se há um estado salvo no sessionStorage
+        const savedState = sessionStorage.getItem('lineupTableState');
+        if (savedState) {
+            const parsedState = JSON.parse(savedState);
+            
+            // Restaura os valores do estado salvo
+            setExpandedRowId(parsedState.expandedRowId);
+            setCurrentPage(parsedState.currentPage);
+            setSearchCompany(parsedState.searchCompany);
+            setSearchFantasy(parsedState.searchFantasy);
+            setSearchCategory(parsedState.searchCategory);
+            setSearchCnpj(parsedState.searchCnpj);
+            setSearchCity(parsedState.searchCity);
+            setSearchActive(parsedState.searchActive);
+        }
+    }, []);
+
+    const renderDetailsTable = (dealerId, dealerName) => {
         const details = getDetailsForRow(dealerId);
         return (
             <React.Fragment>
@@ -168,7 +199,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
                                             <td>{products.products_bouquets_id}</td>
                                             <td>{products.bouquets_sms_active === 1 ? "Ativo" : "Inativo"}</td>
                                             <td>{products.products_mw_id}</td>
-                                            <td><button className="btnTableTd" onClick={() => handleViewMore2(products.products_mw_id, products.products_name)}>Ver Conteúdos</button></td>
+                                            <td><button className="btnTableTd" onClick={() => handleViewMore2(products.products_mw_id, products.products_name, dealerName)}>Ver Conteúdos</button></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -180,6 +211,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
             </React.Fragment>
         )
     };
+
 
 
     return (
@@ -316,7 +348,7 @@ const LineupTable = ({ whitelistProducts, data }) => {
                                         </button>
                                     </td>
                                 </tr>
-                                {expandedRowId === empresa.dealers_id && renderDetailsTable(empresa.dealers_id)}
+                                {expandedRowId === empresa.dealers_id && renderDetailsTable(empresa.dealers_id, empresa.dealers_company_name )}
                             </React.Fragment>
 
                         ))}
@@ -528,8 +560,8 @@ const ChannelsTable = ({ channelsData, loading, error }) => {
 
                         ))
                             :
-                            <tr>
-                                <td><p>Nenhum Canal encontrado.</p></td>
+                            <tr >
+                                <td className="trBodyNoContent"><p>Nenhum Canal encontrado.</p></td>
                             </tr>
                         }
                     </tbody>
@@ -560,7 +592,6 @@ const VodsTable = ({ vodsData, loading, error }) => {
     const [searchVodGroup, setSearchVodGroup] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
-    //const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const handleClickOutside = (event) => {
@@ -729,7 +760,7 @@ const VodsTable = ({ vodsData, loading, error }) => {
                         ))
                             :
                             <tr>
-                                <td><p>Nenhum VOD encontrado.</p></td>
+                                <td className="trBodyNoContent"><p>Nenhum VOD encontrado.</p></td>
                             </tr>
                         }
                     </tbody>
