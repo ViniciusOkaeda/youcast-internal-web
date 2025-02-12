@@ -8,6 +8,95 @@ import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import ShareRoundedIcon from '@mui/icons-material/ShareRounded';
 import { ExcelExportAtivosTotalMedia, ExcelExportDealers, ExcelExportChannels, ExcelExportVods } from "../excel/excelExport";
 
+const usePaginatedData = ({ data, itemsPerPageDefault = 5, filters = [] }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(itemsPerPageDefault);
+
+    // Apply filters based on the searchTerm and other filters passed to the hook
+    const filteredData = useMemo(() => {
+        return data.filter(item => {
+            return filters.every(filter => {
+                const { key, value } = filter;
+                return value ? item[key]?.toString().toLowerCase().includes(value.toLowerCase()) : true;
+            });
+        });
+    }, [data, filters]);
+
+    // Paginate the filtered data
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    
+    const currentItems = useMemo(() => {
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        return filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    }, [filteredData, currentPage, itemsPerPage]);
+
+    // Update page if currentPage exceeds the total pages
+    useEffect(() => {
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
+
+    const handleItemsPerPageChange = useCallback((e) => {
+        const newItemsPerPage = Number(e.target.value);
+        setItemsPerPage(newItemsPerPage);
+        // Adjust currentPage if necessary
+        if (currentPage > totalPages) {
+            setCurrentPage(totalPages);
+        }
+    }, [currentPage, totalPages]);
+
+    const renderPageNumbers = useMemo(() => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+        let pages = [];
+
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) => (
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        ));
+    }, [currentPage, totalPages]);
+
+    return {
+        searchTerm,
+        setSearchTerm,
+        currentPage,
+        setCurrentPage,
+        currentItems,
+        totalItems,
+        totalPages,
+        itemsPerPage,
+        handleItemsPerPageChange,
+        renderPageNumbers
+    };
+};
+
+export default usePaginatedData;
+
+
+
+
+
+
 const LineupTable = ({ whitelistProducts, data }) => {
     const [searchCompany, setSearchCompany] = useState('');
     const [searchFantasy, setSearchFantasy] = useState('');
@@ -1822,5 +1911,113 @@ const ReportsTableTotalMedia = ({ products, data }) => {
     );
 };
 
+const ImportExcelFile = ({ data }) => {
 
-export { LineupTable, ReportsTable, ReportsTableTotalMedia, ServicesTable, PermissionsTable, ChannelsTable, VodsTable, UsersTable };
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    console.log("minha data tem", data)
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = useMemo(() => data.slice(indexOfFirstItem, indexOfLastItem),
+        [data, indexOfFirstItem, indexOfLastItem]
+    );
+
+    const totalPages = useMemo(() => Math.ceil(data.length / itemsPerPage), [data, itemsPerPage]);
+
+    const renderPageNumbers = useCallback(() => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) =>
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        );
+    }, [currentPage, totalPages]);
+
+    return(
+    <div className="tableContainer">
+    <div className="tableHeader">
+        <div className="tableTitle">
+            <h2>Relatório de assinantes (registro de histórico)</h2>
+        </div>
+
+    </div>
+
+    <div className="tableWrapper">
+        <table>
+            <thead>
+                <tr className="trHeader">
+                    <th>Provedor</th>
+                    <th>Razão Social</th>
+                    <th>CNPJ</th>
+                    <th>Cidade</th>
+                    <th>Assinantes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {currentItems.map((e, idx) => (
+                    <React.Fragment key={idx}>
+                        <tr className="trBody">
+                            <td>{e.Provedor}</td>
+                            <td>{e.Razao_social}</td>
+                            <td>{e.CNPJ}</td>
+                            <td>{e.Cidade_Estado}</td>
+                            <td>
+                                {e.Numero_de_assinantes}
+                            </td>
+                        </tr>
+                    </React.Fragment>
+                ))}
+            </tbody>
+        </table>
+    </div>
+
+    <div className="pagination">
+        {renderPageNumbers()}
+    </div>
+
+    <div className="searchContainer">
+        <label>
+            Itens por página:
+            <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                {[5, 10, 15, 20].map(number => (
+                    <option key={number} value={number}>{number}</option>
+                ))}
+            </select>
+        </label>
+    </div>
+    </div>
+
+    )
+}
+
+
+export { 
+    LineupTable, 
+    ReportsTable, 
+    ReportsTableTotalMedia, 
+    ServicesTable, 
+    PermissionsTable, 
+    ChannelsTable, 
+    VodsTable, 
+    UsersTable, 
+    ImportExcelFile 
+};

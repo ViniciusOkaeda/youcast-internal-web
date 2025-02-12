@@ -1,0 +1,24 @@
+.inputButton {
+
+}
+
+input::file-selector-button {
+    height: 40px;
+    width: auto;
+    background-color: rgb(62,62,62);
+    color: white;
+    padding: 0 20px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  }
+
+  input::file-selector-button:hover {
+    cursor: pointer;
+    background-color: #656565;
+  }

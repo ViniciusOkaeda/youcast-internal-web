@@ -9,6 +9,7 @@ import MailLockRoundedIcon from '@mui/icons-material/MailLockRounded';
 import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 import ConstructionRoundedIcon from '@mui/icons-material/ConstructionRounded';
 import MediationOutlinedIcon from '@mui/icons-material/MediationOutlined';
+import RestorePageIcon from '@mui/icons-material/RestorePage';
 
 export const Menu = ({ data }) => {
     const locationPage = window.location.pathname.replace(/\//g, '');
@@ -113,6 +114,18 @@ export const Menu = ({ data }) => {
                         </div>
                         <div className="optionsText">
                             <p>Reports</p>
+                        </div>
+                    </a>
+                )}
+
+                {hasServicePermission("History Management") && (
+
+                    <a href="/history" className={locationPage === "history" ? "optionsWithBackground" : "options"}>
+                        <div className="optionsIcon">
+                            <RestorePageIcon />
+                        </div>
+                        <div className="optionsText">
+                            <p>History</p>
                         </div>
                     </a>
                 )}

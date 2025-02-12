@@ -17,6 +17,7 @@ import RegisterService from "./pages/service/register/register";
 import Report from "./pages/report/report";
 import DetailedReport from "./pages/report/detailedReport";
 import DetailedLineup from "./pages/lineup/detailedLineup";
+import History from "./pages/history/history";
 
 import withAuth from "./utils/privateRoute";
 
@@ -40,6 +41,8 @@ const ProtectedRegisterService = withAuth(RegisterService)
 
 const ProtectedReport = withAuth(Report);
 const ProtectedDetailReport = withAuth(DetailedReport);
+
+const ProtectedHistory = withAuth(History);
 
 function AllRoutes() {
 
@@ -72,6 +75,8 @@ function AllRoutes() {
         
         <Route path="/report" element={<ProtectedReport />} />
         <Route path="/report/:id" element={<DetailedReport />} />
+
+        <Route path="/history" element={<ProtectedHistory />} />
 
         <Route path="*" element={<Navigate to ={token ? "/dashboard" : "/"} />} /> 
 
