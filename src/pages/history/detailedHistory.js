@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { LineupTable } from "../../components/tables/table"
+import { ImportExcelFile } from "../../components/tables/table"
 import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
-import "./lineup.css"
+import "./history.css"
 import { Header } from "../../components/header/header";
+import * as XLSX from "xlsx";
 import { ValidateToken, GetUserData, Logout, GetDealerData, GetWhitelistProductsData } from "../../services/calls";
 
 
 
 
 
-function Lineup() {
+function DetailedHistory() {
 
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -19,18 +20,45 @@ function Lineup() {
     const [userDataAvailable, setUserDataAvailable] = useState([]);
     const [dealers, setDealers] = useState([]);
     const [products, setProducts] = useState([]);
+    const [items, setItems] = useState([]);
+
+    const readExcel = (file) => {
+        const promise = new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsArrayBuffer(file);
+
+            fileReader.onload = (e) => {
+                const bufferArray = e.target.result;
+
+                const wb = XLSX.read(bufferArray, { type: "buffer" });
+
+                const wsname = wb.SheetNames[1];
+
+                const ws = wb.Sheets[wsname];
+
+                const data = XLSX.utils.sheet_to_json(ws);
+
+                resolve(data);
+            };
+
+            fileReader.onerror = (error) => {
+                reject(error);
+            };
+        });
+
+        promise.then((d) => {
+            setItems(d);
+        });
+    };
+
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 const result = await GetUserData();
                 if (result) {
-                    let dataAvailable = result.availableServices.filter(e => e.service_name.includes("Lineup"))
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
-                    GetDealerData(dataAvailable, setLoading, setDealers, setError)
-                    GetWhitelistProductsData(dataAvailable, setLoading, setProducts, setError)
-                    
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -69,8 +97,20 @@ function Lineup() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
-                            <LineupTable whitelistProducts={products} data={dealers} />
+                            <div className="testar">
+                                <input
+                                    required
+                                    type="file"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        readExcel(file);
+                                    }}
+                                />
+                            
+                            <ImportExcelFile data={items}/>
 
+
+                            </div>
                         </>
                     )}
 
@@ -81,4 +121,4 @@ function Lineup() {
 }
 
 
-export default Lineup;
+export default DetailedHistory;

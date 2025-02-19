@@ -18,6 +18,9 @@ import Report from "./pages/report/report";
 import DetailedReport from "./pages/report/detailedReport";
 import DetailedLineup from "./pages/lineup/detailedLineup";
 import History from "./pages/history/history";
+import DetailedHistory from "./pages/history/detailedHistory";
+import RegisterHistory from "./pages/history/register/register";
+import ImportHistory from "./pages/history/importHistory";
 
 import withAuth from "./utils/privateRoute";
 
@@ -43,6 +46,10 @@ const ProtectedReport = withAuth(Report);
 const ProtectedDetailReport = withAuth(DetailedReport);
 
 const ProtectedHistory = withAuth(History);
+const ProtectedDetailedHistory = withAuth(DetailedHistory)
+const ProtectedRegisterHistory = withAuth(RegisterHistory)
+const ProtectedImportHistory = withAuth(ImportHistory)
+
 
 function AllRoutes() {
 
@@ -77,6 +84,9 @@ function AllRoutes() {
         <Route path="/report/:id" element={<DetailedReport />} />
 
         <Route path="/history" element={<ProtectedHistory />} />
+        <Route path="/history/import/:id" element={<ProtectedImportHistory />} />
+        <Route path="/history/:id" element={<ProtectedDetailedHistory />} />
+        <Route path="/history/register" element={<ProtectedRegisterHistory />} />
 
         <Route path="*" element={<Navigate to ={token ? "/dashboard" : "/"} />} /> 
 

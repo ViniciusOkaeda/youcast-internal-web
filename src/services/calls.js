@@ -91,6 +91,43 @@ export const GetServicesData = async () => {}
 export const RegisterServicePermission = async () => {}
 
 
+// retorna a lista de serviços existentes.
+export const GetHistoryTypes = async (setLoading, setHistoryTypeData, setError) => {
+setLoading(true);
+try {
+    const request = await api.post('api/history/getHistoryTypes');
+    if (request.data.status === 1) {
+        setHistoryTypeData(request.data.rows)
+    } else {
+        setError('Failed to load data');
+    }
+} catch (error) {
+    setError(error.message);
+} finally {
+    setLoading(false);
+}
+}
+
+// registra uma permissão em um serviço
+export const RegisterHistoryType = async (setLoading, history, setSucess, setError) => {
+    setLoading(true);
+    const data = history
+
+    try {
+        const request = await api.post('api/history/registerHistoryType', { data });
+        if (request.data.status === 1) {
+            setSucess(request.data.message)
+        } else {
+            setError('Failed to load data');
+        }
+    } catch (error) {
+        setError(error.message);
+    } finally {
+        setLoading(false);
+    }
+}
+
+
 // retorna a lista de canais motv
 export const GetChannelsData = async (dataAvailableWithConcat, setLoading, setChannels, setError) => {
     setLoading(true);

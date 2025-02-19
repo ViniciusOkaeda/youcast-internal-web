@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ImportExcelFile } from "../../components/tables/table"
+import { HistoryTypeTable, ImportExcelFile } from "../../components/tables/table"
 import { useNavigate } from "react-router-dom";
 import { Menu } from "../../components/menu/menu";
 import "./history.css"
 import { Header } from "../../components/header/header";
 import * as XLSX from "xlsx";
-import { ValidateToken, GetUserData, Logout, GetDealerData, GetWhitelistProductsData } from "../../services/calls";
+import PersonAddRoundedIcon from '@mui/icons-material/PersonAddRounded';
+import { ValidateToken, GetUserData, Logout, GetDealerData, GetWhitelistProductsData, GetHistoryTypes } from "../../services/calls";
 
 
 
@@ -18,6 +19,8 @@ function History() {
     const [error, setError] = useState('');
     const [userData, setUserData] = useState(null);
     const [userDataAvailable, setUserDataAvailable] = useState([]);
+    const [userPermissions, setUserPermissions] = useState([]);
+    const [historyTypes, setHistoryTypes] = useState([]);
     const [dealers, setDealers] = useState([]);
     const [products, setProducts] = useState([]);
     const [items, setItems] = useState([]);
@@ -59,6 +62,8 @@ function History() {
                 if (result) {
                     setUserData(result);
                     setUserDataAvailable(result.availableServices || []);
+                    setUserPermissions(result.availableServices.filter(e => e.service_name.includes("History"))[0])
+                    GetHistoryTypes(setLoading, setHistoryTypes, setError)
                 }
             } catch (err) {
                 setError(err.message || 'An error occurred');
@@ -97,20 +102,17 @@ function History() {
                         <div className="initialContainer"><h3>Erro: {error}</h3></div> // Exibindo mensagem de erro, se houver
                     ) : (
                         <>
-                            <div className="testar">
-                                <input
-                                    required
-                                    type="file"
-                                    onChange={(e) => {
-                                        const file = e.target.files[0];
-                                        readExcel(file);
-                                    }}
-                                />
-                            
-                            <ImportExcelFile data={items}/>
+                            {userPermissions.register_right === 1 ?
+                                <div className="registerButtonContainer">
+                                    <button className="registerButton" onClick={(() => navigate('/history/register'))}>
+                                        <PersonAddRoundedIcon />
+                                        <p>Novo histórico</p>
+                                    </button>
+                                </div>
 
+                            : ""}
 
-                            </div>
+                        <HistoryTypeTable data={historyTypes} />
                         </>
                     )}
 

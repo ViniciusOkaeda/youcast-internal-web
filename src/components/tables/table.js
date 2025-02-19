@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, createContext, useContext } from "react";
 import './table.css';
 import { useNavigate } from 'react-router-dom';
 import api from "../../services/api";
@@ -6,6 +6,8 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import ArrowCircleRightRoundedIcon from '@mui/icons-material/ArrowCircleRightRounded';
 import EditRoundedIcon from '@mui/icons-material/EditRounded';
 import ShareRoundedIcon from '@mui/icons-material/ShareRounded';
+import PublishIcon from '@mui/icons-material/Publish';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { ExcelExportAtivosTotalMedia, ExcelExportDealers, ExcelExportChannels, ExcelExportVods } from "../excel/excelExport";
 
 const usePaginatedData = ({ data, itemsPerPageDefault = 5, filters = [] }) => {
@@ -94,9 +96,6 @@ export default usePaginatedData;
 
 
 
-
-
-
 const LineupTable = ({ whitelistProducts, data }) => {
     const [searchCompany, setSearchCompany] = useState('');
     const [searchFantasy, setSearchFantasy] = useState('');
@@ -152,16 +151,32 @@ const LineupTable = ({ whitelistProducts, data }) => {
     };
 
     // Filtrar os dados com base no termo de pesquisa
-    const filteredData = data.filter((item) =>
-        item.dealers_company_name?.toLowerCase().includes(searchCompany.toLowerCase()) &&
-        item.dealers_fantasy_name?.toLowerCase().includes(searchFantasy.toLowerCase()) &&
-        item.dealers_category?.toLowerCase().includes(searchCategory.toLowerCase()) &&
-        item.dealers_cnpj?.toLowerCase().includes(searchCnpj.toLowerCase()) &&
-        item.dealers_city?.toLowerCase().includes(searchCity.toLowerCase()) &&
-        (handleStatusFilter(searchActive) === null ||
-            item.dealers_active === handleStatusFilter(searchActive))
+    const removeData = data.filter((dealer) => {
+       const filtered = dealer.dealers_id !== 4 &&
+        dealer.dealers_id !== 5 &&
+        dealer.dealers_id !== 7 &&
+        dealer.dealers_id !== 9 &&
+        dealer.dealers_id !== 13 &&
+        dealer.dealers_id !== 15 &&
+        dealer.dealers_id !== 180 &&
+        dealer.dealers_id !== 217 &&
+        dealer.dealers_id !== 298 &&
+        dealer.dealers_id !== 357 &&
+        dealer.dealers_id !== 374
+        
+        return filtered
+    })
 
-    );
+    const filteredData = removeData.filter((item) => {
+        const isCompanyMatch = searchCompany ? item.dealers_company_name?.toLowerCase().includes(searchCompany.toLowerCase()) : true;
+        const isFantasyMatch = searchFantasy ? item.dealers_fantasy_name?.toLowerCase().includes(searchFantasy.toLowerCase()) : true;
+        const isCategoryMatch = searchCategory ? item.dealers_category?.toLowerCase().includes(searchCategory.toLowerCase()) : true;
+        const isCnpjMatch = searchCnpj ? item.dealers_cnpj?.toLowerCase().includes(searchCnpj.toLowerCase()) : true;
+        const isCityMatch = searchCity ? item.dealers_city?.toLowerCase().includes(searchCity.toLowerCase()) : true;
+        const isStatusMatch = handleStatusFilter(searchActive) === null || item.dealers_active === handleStatusFilter(searchActive);
+    
+        return isCompanyMatch && isFantasyMatch && isCategoryMatch && isCnpjMatch && isCityMatch && isStatusMatch;
+    });
 
     // Calcular os dados a serem exibidos na página atual
     const totalItems = filteredData.length;
@@ -1251,7 +1266,7 @@ const PermissionsTable = ({ permissionsData }) => {
                                     <td>{permission.type_user_id}</td>
                                     <td>{permission.name}</td>
                                     <td className="tdFlex">
-                                        <button className="btnTableTd btnTableTdMaxWidth" onClick={(() => navigate('/permission/register'))}><EditRoundedIcon /></button>
+                                        <button className="btnTableTd btnTableTdMaxWidth" onClick={(() => navigate('/permission/register'))}><PublishIcon /></button>
                                         <button className="btnTableTd btnTableTdMaxWidth" onClick={(() => handleViewMore(permission.type_user_id) )}><ShareRoundedIcon /></button>
                                     </td>
                                 </tr>
@@ -2009,6 +2024,104 @@ const ImportExcelFile = ({ data }) => {
     )
 }
 
+const HistoryTypeTable = ({ data }) => {
+    const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = useMemo(() => data.slice(indexOfFirstItem, indexOfLastItem),
+        [data, indexOfFirstItem, indexOfLastItem]
+    );
+
+    const totalPages = useMemo(() => Math.ceil(data.length / itemsPerPage), [data, itemsPerPage]);
+
+    const renderPageNumbers = useCallback(() => {
+        const maxPageNumbers = 5;
+        const startPage = Math.max(1, currentPage - Math.floor(maxPageNumbers / 2));
+        const endPage = Math.min(totalPages, startPage + maxPageNumbers - 1);
+
+        let pages = [];
+        if (startPage > 1) pages.push(1, '...');
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        if (endPage < totalPages) pages.push('...', totalPages);
+
+        return pages.map((number, index) =>
+            number === '...' ? (
+                <span key={index} className="pageEllipsis">...</span>
+            ) : (
+                <button
+                    key={index}
+                    onClick={() => setCurrentPage(number)}
+                    className={currentPage === number ? 'activeBtn' : ''}
+                >
+                    {number}
+                </button>
+            )
+        );
+    }, [currentPage, totalPages]);
+
+    return(
+        <div className="tableContainer">
+        <div className="tableHeader">
+            <div className="tableTitle">
+                <h2>Opções de histórico disponíveis</h2>
+            </div>
+    
+        </div>
+    
+        <div className="tableWrapper">
+            <table>
+                <thead>
+                    <tr className="trHeader">
+                        <th>Id</th>
+                        <th>Histórico</th>
+                        <th>Ações</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((item, idx) => {
+
+                        return(
+                            <React.Fragment key={idx}>
+                            <tr className="trBody">
+                                <td>{item.history_register_type_id}</td>
+                                <td>{item.name}</td>
+                                <td className="tdFlex">
+                                    <button className="btnTableTd btnTableTdMaxWidth" onClick={(() => navigate(`/history/import/${item.history_register_type_id}`))}><PublishIcon /></button>
+                                    <button className="btnTableTd btnTableTdMaxWidth" onClick={(() => navigate(`/history/${item.history_register_type_id}`) )}><RemoveRedEyeIcon /></button>
+                                </td>
+                            </tr>
+                        </React.Fragment>
+                        )
+                    })}
+
+                </tbody>
+            </table>
+        </div>
+    
+        <div className="pagination">
+            {renderPageNumbers()}
+        </div>
+    
+        <div className="searchContainer">
+            <label>
+                Itens por página:
+                <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                    {[5, 10, 15, 20].map(number => (
+                        <option key={number} value={number}>{number}</option>
+                    ))}
+                </select>
+            </label>
+        </div>
+        </div>
+    
+        )
+}
 
 export { 
     LineupTable, 
@@ -2019,5 +2132,6 @@ export {
     ChannelsTable, 
     VodsTable, 
     UsersTable, 
-    ImportExcelFile 
+    ImportExcelFile,
+    HistoryTypeTable 
 };
